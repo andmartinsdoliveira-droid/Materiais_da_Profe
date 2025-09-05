@@ -28,9 +28,11 @@ class ShoppingCart {
   constructor() {
     this.items = this.loadFromStorage();
     this.isModalOpen = false;
+    this.currentCheckoutStep = 1;
+    this.customerData = {};
     this.init();
   }
-
+  
   /**
    * Inicializa o carrinho
    */
@@ -38,6 +40,14 @@ class ShoppingCart {
     this.updateCounter();
     this.bindEvents();
     this.createCheckoutModal();
+     // --- PROTEÇÃO MINIMAL: garantir que o modal do carrinho comece sempre fechado ---
+    // (alteração mínima: evita o problema do carrinho começar aberto)
+    const carrinhoModal = document.getElementById('carrinhoModal');
+    if (carrinhoModal) {
+      try { carrinhoModal.style.display = 'none'; } catch (e) { /* silent */ }
+    }
+    try { document.body.style.overflow = ''; } catch (e) { /* silent */ }
+    // -------------------------------------------------------------------------------
   }
 
   /**
@@ -300,55 +310,68 @@ class ShoppingCart {
     modal.style.display = 'none';
     
     modal.innerHTML = `
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3 class="modal-title">Finalizar Compra</h3>
-          <button id="fecharCheckout" class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <form id="checkoutForm">
-            <div class="form-group">
-              <label class="form-label">Nome Completo *</label>
-              <input type="text" id="customerName" class="form-input" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">E-mail *</label>
-              <input type="email" id="customerEmail" class="form-input" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Telefone (WhatsApp)</label>
-              <input type="tel" id="customerPhone" class="form-input" placeholder="(11) 99999-9999">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Observações</label>
-              <textarea id="orderNotes" class="form-input" rows="3" placeholder="Informações adicionais sobre o pedido..."></textarea>
-            </div>
-            <div class="checkout-total">
-              <strong>Total: R$ <span id="checkoutTotal">0,00</span></strong>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <div style="width:100%;">
-            <div style="display:flex;gap:1rem;justify-content:flex-end;">
-              <button id="cancelarCheckout" class="btn btn-outline">Cancelar</button>
-              <button id="confirmarPedido" class="btn btn-success">Confirmar Pedido</button>
-            </div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Finalizar Compra</h3>
+      <button id="fecharCheckout" class="modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="checkoutStep1" class="checkout-step active">
+        <form id="checkoutForm">
+          <div class="form-group">
+            <label class="form-label">Nome Completo *</label>
+            <input type="text" id="customerName" class="form-input" required>
           </div>
+          <div class="form-group">
+            <label class="form-label">E-mail *</label>
+            <input type="email" id="customerEmail" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Telefone (WhatsApp)</label>
+            <input type="tel" id="customerPhone" class="form-input" placeholder="(11) 99999-9999">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Observações</label>
+            <textarea id="orderNotes" class="form-input" rows="3" placeholder="Informações adicionais sobre o pedido..."></textarea>
+          </div>
+          <div class="checkout-total">
+            <strong>Total: R$ <span id="checkoutTotal">0,00</span></strong>
+          </div>
+        </form>
+      </div>
+
+      <div id="checkoutStep2" class="checkout-step" style="display:none;">
+        <h4>Resumo do Pedido</h4>
+        <div id="resumoPedidoItens"></div>
+        <div class="checkout-total">
+          <strong>Total do Pedido: R$ <span id="resumoPedidoTotal">0,00</span></strong>
+        </div>
+          <div id="walletBrick_container" style="margin-top:1rem;"></div>
+        <button id="btnPagarMercadoPago" class="btn btn-success btn-lg" style="width:100%; margin-top: 1rem;">Pagar com Mercado Pago</button>
+        <button id="btnVoltarEtapa1" class="btn btn-outline" style="width:100%; margin-top: 0.5rem;">Voltar</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div style="width:100%;">
+        <div style="display:flex;gap:1rem;justify-content:flex-end;">
+          <button id="cancelarCheckout" class="btn btn-outline">Cancelar</button>
+          <button id="avancarEtapa1" class="btn btn-success">Continuar</button>
         </div>
       </div>
-    `;
+    </div>
+  </div>
+`;
 
     document.body.appendChild(modal);
 
     // Bind eventos do checkout
-    document.getElementById('fecharCheckout').addEventListener('click', () => this.hideCheckoutForm());
-    document.getElementById('cancelarCheckout').addEventListener('click', () => this.hideCheckoutForm());
-    document.getElementById('confirmarPedido').addEventListener('click', () => this.processCheckout());
-    
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) this.hideCheckoutForm();
-    });
+   document.getElementById('fecharCheckout').onclick = () => this.hideCheckoutForm();
+document.getElementById('cancelarCheckout').onclick = () => this.hideCheckoutForm();
+document.getElementById('avancarEtapa1').onclick = () => this.continuarCheckout();
+document.getElementById('btnVoltarEtapa1').onclick = () => this.mostrarCheckoutStep(1);
+document.getElementById('btnPagarMercadoPago').onclick = () => this.processCheckout();
+
+modal.addEventListener('click', (e) => { if (e.target === modal) this.hideCheckoutForm(); });
   }
 
   /**
@@ -367,6 +390,15 @@ class ShoppingCart {
       if (totalElement) {
         totalElement.textContent = this.formatPrice(this.getTotalValue()).replace('R$ ', '');
       }
+     this.mostrarCheckoutStep(1);
+
+    // Se existirem dados gravados do cliente, re-hidratar inputs
+    if (this.customerData) {
+      if (this.customerData.name) document.getElementById('customerName').value = this.customerData.name;
+      if (this.customerData.email) document.getElementById('customerEmail').value = this.customerData.email;
+      if (this.customerData.phone) document.getElementById('customerPhone').value = this.customerData.phone;
+      if (this.customerData.notes) document.getElementById('orderNotes').value = this.customerData.notes;
+    }
       modal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
     }
@@ -424,11 +456,12 @@ class ShoppingCart {
       return;
     }
 
-    // Desabilita botão durante processamento
-    const confirmBtn = document.getElementById('confirmarPedido');
-    if (confirmBtn) {
-      confirmBtn.disabled = true;
-      confirmBtn.textContent = 'Processando...';
+    // Desabilita botão de pagamento durante processamento
+    const payBtn = document.getElementById('btnPagarMercadoPago');
+    if (payBtn) {
+      payBtn.disabled = true;
+      payBtn.dataset.originalText = payBtn.textContent;
+      payBtn.textContent = 'Processando...';
     }
 
     try {
@@ -469,12 +502,72 @@ class ShoppingCart {
       this.showNotification('Erro ao processar pedido. Tente novamente.', 'error');
     } finally {
       // Reabilita botão
-      if (confirmBtn) {
-        confirmBtn.disabled = false;
-        confirmBtn.textContent = 'Confirmar Pedido';
+      if (payBtn) {
+        payBtn.disabled = false;
+        payBtn.textContent = payBtn.dataset.originalText || 'Pagar com Mercado Pago';
       }
     }
   }
+
+ mostrarCheckoutStep(step) {
+  const step1 = document.getElementById('checkoutStep1');
+  const step2 = document.getElementById('checkoutStep2');
+  const avancarBtn = document.getElementById('avancarEtapa1');
+
+  if (!step1 || !step2) return;
+
+  if (step === 1) {
+    step1.style.display = 'block';
+    step2.style.display = 'none';
+    if (avancarBtn) avancarBtn.style.display = 'inline-block';
+    this.currentCheckoutStep = 1;
+  } else if (step === 2) {
+    this.gerarResumoPedido();
+    step1.style.display = 'none';
+    step2.style.display = 'block';
+    if (avancarBtn) avancarBtn.style.display = 'none';
+    this.currentCheckoutStep = 2;
+  }
+}
+
+continuarCheckout() {
+  const name = document.getElementById('customerName')?.value?.trim();
+  const email = document.getElementById('customerEmail')?.value?.trim();
+  const phone = document.getElementById('customerPhone')?.value?.trim();
+
+  if (!name || !email) {
+    this.showNotification('Por favor, preencha seu nome e e-mail.', 'error');
+    return;
+  }
+  if (!this.validateEmail(email)) {
+    this.showNotification('Por favor, insira um e-mail válido.', 'error');
+    return;
+  }
+
+  this.customerData = { name, email, phone };
+  this.mostrarCheckoutStep(2);
+}
+
+gerarResumoPedido() {
+  const resumoItensContainer = document.getElementById('resumoPedidoItens');
+  const resumoTotalElement = document.getElementById('resumoPedidoTotal');
+  if (!resumoItensContainer || !resumoTotalElement) return;
+
+  if (this.items.length === 0) {
+    resumoItensContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
+    resumoTotalElement.textContent = '0,00';
+    return;
+  }
+
+  resumoItensContainer.innerHTML = this.items.map(item => `
+    <div class="resumo-item">
+      <span>${this.escapeHtml(item.title)} x ${item.quantity}</span>
+      <span>${this.formatPrice(item.unit_price * item.quantity)}</span>
+    </div>
+  `).join('');
+
+  resumoTotalElement.textContent = this.formatPrice(this.getTotalValue()).replace('R$ ', '');
+}
 
   /**
    * Salva carrinho no localStorage
@@ -832,4 +925,3 @@ document.head.appendChild(cartStyles);
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ShoppingCart;
 }
-
