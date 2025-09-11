@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Detalhes do Produto - Espaço do Educador</title>
+    <link rel="stylesheet" href="assets/css/styles-educacional.css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+</head>
+<body>
+    <!-- Banner com Logo -->
+    <div class="banner" onclick="window.location.href='index.html'">
+        <div class="banner-content">
+            <div class="banner-logo">🎓</div>
+            <div class="banner-text">
+                <div class="banner-title">Materiais da Profe</div>
+                <div class="banner-subtitle">Olá! Seja muito bem-vinda!</div>
+            </div>
+        </div>
+    </div>
+
+<header class="header">
+    <div class="container">
+        <div class="header-content">
+            <a href="index.html" class="logo">Espaço do Educador</a>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Início</a>
+                <a href="sobre.html" class="nav-link">Sobre</a>
+                <a href="contato.html" class="nav-link">Contato</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+    <nav style="margin:var(--espacamento-lg) 0;">
+        <div style="display:flex;align-items:center;gap:var(--espacamento-xs);color:var(--cor-cinza-escuro);font-size:0.9rem;">
+            <a href="index.html" style="color:var(--cor-azul-sereno);text-decoration:none;">🏠 Início</a>
+            <span>›</span>
+            <span id="breadcrumbProduto">Produto</span>
+        </div>
+    </nav>
+
+    <div id="loading" class="loading-overlay" style="display:none;"><div class="loading loading-large"></div></div>
+
+    <div id="produtoNaoEncontrado" style="display:none;text-align:center;padding:var(--espacamento-xxl) 0;">
+        <div style="font-size:5rem;margin-bottom:var(--espacamento-lg);">😕</div>
+        <h2>Produto não encontrado</h2>
+        <p style="color:var(--cor-cinza-escuro);margin-bottom:var(--espacamento-xl);">O produto que você procura não foi encontrado.</p>
+        <a href="index.html" class="btn btn-primary">🏠 Voltar ao Catálogo</a>
+    </div>
+
+    <div id="produtoDetalhes" style="display:none;">
+        <section style="display:grid;grid-template-columns:1fr 1fr;gap:var(--espacamento-xxl);margin-bottom:var(--espacamento-xxl);align-items:start;">
+            <div>
+                <div class="card">
+                    <div class="card-body" style="padding:0;">
+                        <div id="imagemPrincipal" style="width:100%;height:400px;background:linear-gradient(135deg,var(--cor-azul-ceu) 0%,var(--cor-rosa-carinho) 100%);display:flex;align-items:center;justify-content:center;font-size:5rem;color:white;border-radius:var(--borda-radius-lg) var(--borda-radius-lg) 0 0;">📚</div>
+                        <div id="miniaturas" style="display:flex;gap:var(--espacamento-sm);padding:var(--espacamento-md);justify-content:center;flex-wrap:wrap;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card">
+                    <div class="card-body">
+                        <h1 id="produtoTitulo" style="color:var(--cor-azul-sereno);margin-bottom:var(--espacamento-md);">Carregando...</h1>
+                        <div id="produtoPreco" style="font-size:2rem;font-weight:bold;color:var(--cor-verde-esperanca);margin-bottom:var(--espacamento-lg);">R$ 0,00</div>
+
+                        <div id="produtoDescricao" style="color:var(--cor-cinza-escuro);line-height:1.6;margin-bottom:var(--espacamento-xl);">
+                            Carregando descrição...
+                        </div>
+
+                        <div style="display:flex;gap:var(--espacamento-md);margin-bottom:var(--espacamento-lg);flex-wrap:wrap;">
+                            <button id="btnAdicionarCarrinho" class="btn btn-primary btn-lg" style="flex:1;min-width:200px;">🛒 Adicionar ao Carrinho</button>
+                            <button id="btnComprarAgora" class="btn btn-success btn-lg">⚡ Comprar Agora</button>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <h4 style="margin-bottom:var(--espacamento-sm);color:var(--cor-azul-sereno);">✅ O que você vai receber:</h4>
+                            <ul style="margin:0;padding-left:var(--espacamento-lg);">
+                                <li>Acesso imediato após a compra</li>
+                                <li>Material em PDF de alta qualidade</li>
+                                <li>Pronto para impressão</li>
+                                <li>Suporte pedagógico incluído</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" style="margin-bottom:var(--espacamento-xxl);">
+            <div class="card-header"><h2 style="margin:0;color:white;">Informações do Produto</h2></div>
+            <div class="card-body">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--espacamento-lg);">
+                    <div style="text-align:center;">
+                        <div style="font-size:3rem;margin-bottom:var(--espacamento-sm);">📄</div>
+                        <h4>Formato</h4>
+                        <p style="color:var(--cor-cinza-escuro);">PDF Digital</p>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:3rem;margin-bottom:var(--espacamento-sm);">🖨️</div>
+                        <h4>Impressão</h4>
+                        <p style="color:var(--cor-cinza-escuro);">Alta Qualidade</p>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:3rem;margin-bottom:var(--espacamento-sm);">⚡</div>
+                        <h4>Entrega</h4>
+                        <p style="color:var(--cor-cinza-escuro);">Imediata</p>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:3rem;margin-bottom:var(--espacamento-sm);">💬</div>
+                        <h4>Suporte</h4>
+                        <p style="color:var(--cor-cinza-escuro);">Incluído</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Produtos relacionados -->
+        <section id="produtosRelacionadosWrap" style="margin-bottom:var(--espacamento-xxl);">
+            <h2 style="text-align:center;margin-bottom:var(--espacamento-xl);">Você Também Pode Gostar</h2>
+            <div id="produtosRelacionados" class="produtos-grid"></div>
+        </section>
+    </div>
+
+    <div id="mensagens"></div>
+</main>
+
+<!-- Carrinho Flutuante -->
+<div class="carrinho-flutuante">
+    <button id="carrinhoBtn" class="carrinho-btn" title="Ver Carrinho">
+        🛒
+        <span id="carrinhoContador" class="carrinho-contador" style="display: none;">0</span>
+    </button>
+</div>
+
+<!-- Modal do Carrinho -->
+<div id="carrinhoModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Meu Carrinho</h3>
+            <button id="fecharCarrinho" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="carrinhoItens"></div>
+            <div id="carrinhoVazio" style="text-align:center;padding:2rem;display:none;">
+                <p>Seu carrinho está vazio</p>
+                <p style="color:var(--cor-cinza-escuro);font-size:0.9rem;">Adicione alguns recursos pedagógicos para começar!</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div style="width:100%;">
+                <div id="carrinhoTotal" style="text-align:right;margin-bottom:1rem;">
+                    <strong>Total: R$ <span id="valorTotal">0,00</span></strong>
+                </div>
+                <div style="display:flex;gap:1rem;justify-content:flex-end;">
+                    <button id="limparCarrinho" class="btn btn-outline">Limpar Carrinho</button>
+                    <button id="finalizarCompra" class="btn btn-success">Finalizar Compra</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Espaço do Educador</h3>
+                <p>Recursos pedagógicos de qualidade para transformar a educação e inspirar o aprendizado.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Links Úteis</h3>
+                <p><a href="index.html">Catálogo</a></p>
+                <p><a href="sobre.html">Sobre Nós</a></p>
+                <p><a href="contato.html">Contato</a></p>
+            </div>
+            <div class="footer-section">
+                <h3>Suporte</h3>
+                <p>📧 contato@espacodoeducador.com</p>
+                <p>📱 (11) 99999-9999</p>
+            </div>
+        </div>
+        <div class="footer-bottom"><p>&copy; 2024 Espaço do Educador. Todos os direitos reservados.</p></div>
+    </div>
+</footer>
+
+<!-- Scripts -->
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/cart-compat.js"></script>
+<script src="https://sdk.mercadopago.com/js/v2"></script>
+<script src="assets/js/cart-final-otimizado.js"></script>
+
+<script>
+    // =================================================================
+    // CONFIGURAÇÃO CORRIGIDA - URL DO BACKEND NO RENDER
+    // =================================================================
+    const BACKEND_URL = 'https://backend-materiais-da-profe.onrender.com';
+    window.BACKEND_URL = BACKEND_URL;
+    
+    let produtos = [];
+    let produtoAtual = null;
+
+    // Funções auxiliares
+    function getField(obj, keys) {
+        for (const k of keys) {
+            if (!obj) continue;
+            if (Object.prototype.hasOwnProperty.call(obj, k) && obj[k] != null && obj[k] !== '') return obj[k];
+        }
+        return '';
+    }
+
+    function escapeHtml(str) {
+        if (str == null) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function renderRichText(container, text) {
+        if (!container) return;
+        if (!text) { 
+            container.textContent = ''; 
+            return; 
+        }
+        
+        const paragraphs = String(text)
+            .split(/\n{2,}/)
+            .map(p => `<p>${escapeHtml(p).replace(/\n/g,'<br>')}</p>`)
+            .join('');
+        container.innerHTML = paragraphs;
+    }
+
+    function formatarPreco(preco) {
+        if (!preco) return 'R$ 0,00';
+        const num = parseFloat(preco.toString().replace(',', '.'));
+        return `R$ ${num.toFixed(2).replace('.', ',')}`;
+    }
+
+    function mostrarLoading(show) {
+        const loading = document.getElementById('loading');
+        if (loading) {
+            loading.style.display = show ? 'flex' : 'none';
+        }
+    }
+
+    function mostrarProdutoNaoEncontrado() {
+        document.getElementById('produtoNaoEncontrado').style.display = 'block';
+        document.getElementById('produtoDetalhes').style.display = 'none';
+    }
+
+    function mostrarMensagem(mensagem, tipo = 'info') {
+        const container = document.getElementById('mensagens');
+        if (!container) return;
+
+        const div = document.createElement('div');
+        div.className = `alert alert-${tipo}`;
+        div.style.cssText = `
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            animation: fadeIn 0.3s ease;
+        `;
+        div.textContent = mensagem;
+
+        container.appendChild(div);
+
+        setTimeout(() => {
+            div.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => div.remove(), 300);
+        }, 5000);
+    }
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', inicializarApp);
+
+    async function inicializarApp() {
+        try {
+            mostrarLoading(true);
+            await carregarProdutos();
+            const produtoId = new URLSearchParams(window.location.search).get('id');
+            if (produtoId) {
+                await carregarProduto(produtoId);
+            } else {
+                mostrarProdutoNaoEncontrado();
+            }
+            configurarEventListeners();
+            mostrarLoading(false);
+        } catch (err) {
+            console.error('Erro inicializar:', err);
+            mostrarMensagem('Erro ao carregar o produto. Tente novamente mais tarde.', 'error');
+            mostrarLoading(false);
+        }
+    }
+
+    async function carregarProdutos() {
+        try {
+            const res = await fetch(`${BACKEND_URL}/produtos`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            produtos = Array.isArray(data) ? data : [];
+        } catch (err) {
+            console.error('Erro ao carregar produtos:', err);
+            throw err;
+        }
+    }
+
+    async function carregarProduto(id) {
+        produtoAtual = produtos.find(p => String(p.ID) === String(id));
+        if (!produtoAtual) { 
+            mostrarProdutoNaoEncontrado(); 
+            return; 
+        }
+
+        // Atualiza informações básicas
+        document.getElementById('produtoTitulo').textContent = produtoAtual.Nome || 'Produto';
+        document.getElementById('produtoPreco').textContent = formatarPreco(produtoAtual.Preço);
+        document.getElementById('breadcrumbProduto').textContent = produtoAtual.Nome || 'Produto';
+        document.title = `${produtoAtual.Nome || 'Produto'} - Espaço do Educador`;
+
+        // Descrição - prioriza DescriçãoCompleta
+        const descricaoLonga = getField(produtoAtual, [
+            'DescriçãoCompleta', 'DescirçãoCompleta', 'DescricaoCompleta', 
+            'Descricao Longa', 'DescricaoCompleta'
+        ]);
+        const descricaoCurta = getField(produtoAtual, [
+            'Descrição', 'Descricao', 'DescricaoCurta', 'DescriçãoCurta'
+        ]);
+
+        renderRichText(
+            document.getElementById('produtoDescricao'), 
+            descricaoLonga || descricaoCurta || 'Recurso pedagógico de qualidade para professoras.'
+        );
+
+        // Imagens
+        carregarImagens();
+
+        // Produtos relacionados
+        carregarProdutosRelacionados();
+
+        document.getElementById('produtoDetalhes').style.display = 'block';
+    }
+
+    function carregarImagens() {
+        const imagemPrincipal = document.getElementById('imagemPrincipal');
+        const miniaturasContainer = document.getElementById('miniaturas');
+        
+        imagemPrincipal.innerHTML = '';
+        miniaturasContainer.innerHTML = '';
+
+        // Obtém todas as imagens do produto
+        const imagens = [];
+        
+        // Verifica diferentes campos de imagem
+        if (produtoAtual.Imagens && Array.isArray(produtoAtual.Imagens)) {
+            imagens.push(...produtoAtual.Imagens);
+        } else if (produtoAtual.URL_Imagens && Array.isArray(produtoAtual.URL_Imagens)) {
+            imagens.push(...produtoAtual.URL_Imagens);
+        } else {
+            // Verifica campos individuais de imagem
+            const camposImagem = ['URL_Imagem', 'URL_Imagem2', 'URL_Imagem3', 'URL_Imagem4', 'URL_Imagem5'];
+            camposImagem.forEach(campo => {
+                if (produtoAtual[campo] && produtoAtual[campo].toString().trim() !== '') {
+                    imagens.push(produtoAtual[campo].toString().trim());
+                }
+            });
+        }
+
+        // Remove duplicatas e URLs vazias
+        const imagensUnicas = [...new Set(imagens.filter(img => img && img.toString().trim() !== ''))];
+        
+        if (imagensUnicas.length > 0) {
+            // Imagem principal
+            imagemPrincipal.innerHTML = `
+                <img src="${imagensUnicas[0]}" 
+                     alt="${produtoAtual.Nome}" 
+                     style="width:100%;height:100%;object-fit:cover;border-radius:var(--borda-radius-lg) var(--borda-radius-lg) 0 0;"
+                     onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:5rem;color:white;\\'>📚</div>'">
+            `;
+
+            // Miniaturas (se houver mais de uma imagem)
+            if (imagensUnicas.length > 1) {
+                miniaturasContainer.innerHTML = imagensUnicas.map((img, index) => `
+                    <img src="${img}" 
+                         alt="Imagem ${index + 1}" 
+                         style="width:60px;height:60px;object-fit:cover;border-radius:var(--borda-radius-sm);cursor:pointer;border:2px solid ${index === 0 ? 'var(--cor-azul-sereno)' : 'transparent'};"
+                         onclick="trocarImagemPrincipal('${img}', this)"
+                         onerror="this.style.display='none'">
+                `).join('');
+            }
+        } else {
+            // Imagem padrão
+            imagemPrincipal.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:5rem;color:white;">📚</div>';
+        }
+    }
+
+    function trocarImagemPrincipal(novaImagem, elemento) {
+        const imagemPrincipal = document.getElementById('imagemPrincipal');
+        imagemPrincipal.innerHTML = `
+            <img src="${novaImagem}" 
+                 alt="${produtoAtual.Nome}" 
+                 style="width:100%;height:100%;object-fit:cover;border-radius:var(--borda-radius-lg) var(--borda-radius-lg) 0 0;"
+                 onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:5rem;color:white;\\'>📚</div>'">
+        `;
+
+        // Atualiza bordas das miniaturas
+        const miniaturas = document.querySelectorAll('#miniaturas img');
+        miniaturas.forEach(img => img.style.border = '2px solid transparent');
+        elemento.style.border = '2px solid var(--cor-azul-sereno)';
+    }
+
+    function carregarProdutosRelacionados() {
+        const container = document.getElementById('produtosRelacionados');
+        if (!container || !produtoAtual) return;
+
+        // Filtra produtos relacionados (mesma categoria, exceto o atual)
+        let relacionados = produtos.filter(p => 
+            String(p.ID) !== String(produtoAtual.ID) && 
+            p.Categoria === produtoAtual.Categoria
+        );
+
+        // Se não houver produtos da mesma categoria, pega produtos aleatórios
+        if (relacionados.length === 0) {
+            relacionados = produtos.filter(p => String(p.ID) !== String(produtoAtual.ID));
+        }
+
+        // Limita a 4 produtos
+        relacionados = relacionados.slice(0, 4);
+
+        if (relacionados.length === 0) {
+            document.getElementById('produtosRelacionadosWrap').style.display = 'none';
+            return;
+        }
+
+        container.innerHTML = relacionados.map(produto => `
+            <div class="produto-card">
+                <div class="produto-imagem">
+                    ${produto.URL_Imagem ? 
+                        `<img src="${produto.URL_Imagem}" alt="${produto.Nome}" onerror="this.parentElement.innerHTML='📚'">` : 
+                        '📚'
+                    }
+                </div>
+                <div class="produto-info">
+                    <h3 class="produto-titulo">${escapeHtml(produto.Nome)}</h3>
+                    <p class="produto-descricao">${escapeHtml(produto.Descrição || 'Recurso pedagógico de qualidade')}</p>
+                    <div class="produto-preco">${formatarPreco(produto.Preço)}</div>
+                    <div class="produto-acoes">
+                        <a href="detalhes-produto.html?id=${produto.ID}" class="btn btn-secondary">Ver Detalhes</a>
+                        <button onclick="adicionarAoCarrinho(${produto.ID})" class="btn btn-primary">Adicionar</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function configurarEventListeners() {
+        // Botão adicionar ao carrinho
+        const btnAdicionar = document.getElementById('btnAdicionarCarrinho');
+        if (btnAdicionar) {
+            btnAdicionar.addEventListener('click', () => {
+                if (produtoAtual && window.CartManager) {
+                    window.CartManager.adicionarItem(produtoAtual.ID);
+                }
+            });
+        }
+
+        // Botão comprar agora
+        const btnComprarAgora = document.getElementById('btnComprarAgora');
+        if (btnComprarAgora) {
+            btnComprarAgora.addEventListener('click', () => {
+                if (produtoAtual && window.CartManager) {
+                    window.CartManager.adicionarItem(produtoAtual.ID);
+                    window.CartManager.abrirModal();
+                }
+            });
+        }
+    }
+
+    // Função para adicionar ao carrinho (compatibilidade)
+    function adicionarAoCarrinho(produtoId) {
+        if (window.CartManager) {
+            window.CartManager.adicionarItem(produtoId);
+        } else {
+            console.error('CartManager não encontrado');
+            mostrarMensagem('Erro ao adicionar produto ao carrinho', 'error');
+        }
+    }
+</script>
+</body>
+</html>
+
