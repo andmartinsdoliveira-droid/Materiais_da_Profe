@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contato - Espaço do Educador</title>
+    <meta name="description" content="Entre em contato conosco. Estamos aqui para ajudar você a encontrar os melhores recursos pedagógicos.">
+    <link rel="stylesheet" href="assets/css/styles-educacional.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+</head>
+<body>
+    <!-- Banner com Logo -->
+    <div class="banner" onclick="window.location.href='index.html'">
+        <div class="banner-content">
+            <div class="banner-logo">🎓</div>
+            <div class="banner-text">
+                <div class="banner-title">Loja Mundo da Profe</div>
+                <div class="banner-subtitle">Olá! Seja muito bem-vinda!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">Espaço do Educador</a>
+                
+                <nav class="nav">
+                    <a href="index.html" class="nav-link">Início</a>
+                    <a href="sobre.html" class="nav-link">Sobre</a>
+                    <a href="contato.html" class="nav-link" style="color: var(--cor-amarelo-sol);">Contato</a>
+                </nav>
+                
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Buscar recursos...">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Breadcrumb -->
+        <nav style="margin: var(--espacamento-lg) 0;">
+            <div style="display: flex; align-items: center; gap: var(--espacamento-xs); color: var(--cor-cinza-escuro); font-size: 0.9rem;">
+                <a href="index.html" style="color: var(--cor-azul-sereno); text-decoration: none;">🏠 Início</a>
+                <span>›</span>
+                <span>Contato</span>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section style="text-align: center; padding: var(--espacamento-xl) 0; margin-bottom: var(--espacamento-xxl);">
+            <h1>Fale Conosco</h1>
+            <p style="font-size: 1.2rem; color: var(--cor-cinza-escuro); max-width: 600px; margin: 0 auto;">
+                Estamos aqui para ajudar você! Entre em contato conosco através dos canais abaixo ou envie uma mensagem.
+            </p>
+        </section>
+
+        <!-- Informações de Contato -->
+        <section style="margin-bottom: var(--espacamento-xxl);">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--espacamento-xl);">
+                <div class="card">
+                    <div class="card-body" style="text-align: center;">
+                        <div style="font-size: 4rem; margin-bottom: var(--espacamento-lg); color: var(--cor-azul-sereno);">📧</div>
+                        <h3 style="color: var(--cor-azul-sereno); margin-bottom: var(--espacamento-md);">E-mail</h3>
+                        <p style="font-size: 1.1rem; margin-bottom: var(--espacamento-sm);">contato@espacodoeducador.com</p>
+                        <p style="color: var(--cor-cinza-escuro); font-size: 0.9rem;">Respondemos em até 24 horas</p>
+                        <a href="mailto:contato@espacodoeducador.com" class="btn btn-primary" style="margin-top: var(--espacamento-md);">Enviar E-mail</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body" style="text-align: center;">
+                        <div style="font-size: 4rem; margin-bottom: var(--espacamento-lg); color: var(--cor-verde-esperanca);">📱</div>
+                        <h3 style="color: var(--cor-azul-sereno); margin-bottom: var(--espacamento-md);">WhatsApp</h3>
+                        <p style="font-size: 1.1rem; margin-bottom: var(--espacamento-sm);">(11) 99999-9999</p>
+                        <p style="color: var(--cor-cinza-escuro); font-size: 0.9rem;">Seg-Sex: 8h às 18h</p>
+                        <a href="https://wa.me/5511999999999" target="_blank" class="btn btn-success" style="margin-top: var(--espacamento-md);">Chamar no WhatsApp</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body" style="text-align: center;">
+                        <div style="font-size: 4rem; margin-bottom: var(--espacamento-lg); color: var(--cor-rosa-carinho);">💬</div>
+                        <h3 style="color: var(--cor-azul-sereno); margin-bottom: var(--espacamento-md);">Suporte</h3>
+                        <p style="font-size: 1.1rem; margin-bottom: var(--espacamento-sm);">Atendimento Personalizado</p>
+                        <p style="color: var(--cor-cinza-escuro); font-size: 0.9rem;">Dúvidas sobre produtos e pedidos</p>
+                        <button onclick="abrirFormulario()" class="btn btn-outline" style="margin-top: var(--espacamento-md);">Enviar Mensagem</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Formulário de Contato -->
+        <section class="card" style="margin-bottom: var(--espacamento-xxl);">
+            <div class="card-header">
+                <h2 style="margin: 0; color: white;">Envie sua Mensagem</h2>
+            </div>
+            <div class="card-body">
+                <form id="contatoForm" style="max-width: 600px; margin: 0 auto;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--espacamento-lg); margin-bottom: var(--espacamento-lg);">
+                        <div class="form-group">
+                            <label class="form-label">Nome Completo *</label>
+                            <input type="text" id="nome" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">E-mail *</label>
+                            <input type="email" id="email" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: var(--espacamento-lg);">
+                        <label class="form-label">Telefone (WhatsApp)</label>
+                        <input type="tel" id="telefone" class="form-input" placeholder="(11) 99999-9999">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: var(--espacamento-lg);">
+                        <label class="form-label">Assunto *</label>
+                        <select id="assunto" class="form-input" required>
+                            <option value="">Selecione um assunto</option>
+                            <option value="duvida-produto">Dúvida sobre produto</option>
+                            <option value="problema-pedido">Problema com pedido</option>
+                            <option value="sugestao">Sugestão</option>
+                            <option value="parceria">Parceria</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: var(--espacamento-xl);">
+                        <label class="form-label">Mensagem *</label>
+                        <textarea id="mensagem" class="form-input" rows="6" placeholder="Descreva sua dúvida ou mensagem..." required></textarea>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <button type="submit" class="btn btn-primary btn-lg">📧 Enviar Mensagem</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="card" style="margin-bottom: var(--espacamento-xxl);">
+            <div class="card-header">
+                <h2 style="margin: 0; color: white;">Perguntas Frequentes</h2>
+            </div>
+            <div class="card-body">
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <h4>Como recebo os materiais após a compra?</h4>
+                            <span class="faq-icon">+</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Após a confirmação do pagamento, você receberá um e-mail com os links para download dos materiais. O acesso é imediato e os arquivos ficam disponíveis para download por tempo ilimitado.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <h4>Os materiais podem ser impressos?</h4>
+                            <span class="faq-icon">+</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Sim! Todos os nossos materiais são desenvolvidos em alta resolução e otimizados para impressão. Você pode imprimir quantas vezes quiser para uso em suas aulas.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <h4>Posso usar os materiais comercialmente?</h4>
+                            <span class="faq-icon">+</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Os materiais são licenciados para uso educacional. Você pode usar em suas aulas, mas não pode revender ou distribuir os arquivos. Para uso comercial, entre em contato conosco.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <h4>Como posso tirar dúvidas sobre um produto?</h4>
+                            <span class="faq-icon">+</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Você pode entrar em contato conosco pelo WhatsApp, e-mail ou através do formulário desta página. Nossa equipe está sempre pronta para esclarecer suas dúvidas.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <h4>Vocês fazem materiais personalizados?</h4>
+                            <span class="faq-icon">+</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Sim! Oferecemos serviços de criação de materiais personalizados. Entre em contato conosco para discutir suas necessidades específicas e solicitar um orçamento.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mensagens -->
+        <div id="mensagens"></div>
+    </main>
+
+    <!-- Carrinho Flutuante -->
+    <div class="carrinho-flutuante">
+        <button id="carrinhoBtn" class="carrinho-btn" title="Ver Carrinho">
+            🛒
+            <span id="carrinhoContador" class="carrinho-contador" style="display: none;">0</span>
+        </button>
+    </div>
+
+    <!-- Modal do Carrinho -->
+    <div id="carrinhoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Meu Carrinho</h3>
+                <button id="fecharCarrinho" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="carrinhoItens"></div>
+                <div id="carrinhoVazio" style="text-align:center;padding:2rem;display:none;">
+                    <p>Seu carrinho está vazio</p>
+                    <p style="color:var(--cor-cinza-escuro);font-size:0.9rem;">Adicione alguns recursos pedagógicos para começar!</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div style="width:100%;">
+                    <div id="carrinhoTotal" style="text-align:right;margin-bottom:1rem;">
+                        <strong>Total: R$ <span id="valorTotal">0,00</span></strong>
+                    </div>
+                    <div style="display:flex;gap:1rem;justify-content:flex-end;">
+                        <button id="limparCarrinho" class="btn btn-outline">Limpar Carrinho</button>
+                        <button id="finalizarCompra" class="btn btn-success">Finalizar Compra</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Espaço do Educador</h3>
+                    <p>Recursos pedagógicos de qualidade para transformar a educação e inspirar o aprendizado.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Links Úteis</h3>
+                    <p><a href="index.html">Catálogo</a></p>
+                    <p><a href="sobre.html">Sobre Nós</a></p>
+                    <p><a href="contato.html">Contato</a></p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Suporte</h3>
+                    <p>📧 contato@espacodoeducador.com</p>
+                    <p>📱 (11) 99999-9999</p>
+                    <p>🕒 Seg-Sex: 8h às 18h</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Espaço do Educador. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/cart-compat.js"></script>
+    <script src="assets/js/cart-final-otimizado.js"></script>
+    <script>
+        // Configuração do backend
+        const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbwnv-ki6-NooTE3k7he5J7P-sKugiHox3yVFzjIH5y_D-8A7EutSmlg0_3x5bv91PquNw/exec';
+        window.BACKEND_URL = BACKEND_URL;
+
+        // Funcionalidade de busca
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const termo = this.value.trim();
+                if (termo) {
+                    window.location.href = `index.html?busca=${encodeURIComponent(termo)}`;
+                }
+            }
+        });
+
+        // Formulário de contato
+        document.getElementById('contatoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            enviarMensagem();
+        });
+
+        function abrirFormulario() {
+            document.getElementById('contatoForm').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+            document.getElementById('nome').focus();
+        }
+
+        async function enviarMensagem() {
+            const nome = document.getElementById('nome').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const telefone = document.getElementById('telefone').value.trim();
+            const assunto = document.getElementById('assunto').value;
+            const mensagem = document.getElementById('mensagem').value.trim();
+
+            // Validações
+            if (!nome || !email || !assunto || !mensagem) {
+                mostrarMensagem('Por favor, preencha todos os campos obrigatórios.', 'error');
+                return;
+            }
+
+            if (!validarEmail(email)) {
+                mostrarMensagem('Por favor, insira um e-mail válido.', 'error');
+                return;
+            }
+
+            // Simula envio (aqui você integraria com seu backend)
+            mostrarMensagem('Enviando mensagem...', 'info');
+
+            try {
+                // Simula delay de envio
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Aqui você faria a integração real com seu backend
+                // const response = await fetch(BACKEND_URL, { ... });
+                
+                mostrarMensagem('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
+                document.getElementById('contatoForm').reset();
+                
+            } catch (error) {
+                console.error('Erro ao enviar mensagem:', error);
+                mostrarMensagem('Erro ao enviar mensagem. Tente novamente ou entre em contato pelo WhatsApp.', 'error');
+            }
+        }
+
+        function validarEmail(email) {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email);
+        }
+
+        function mostrarMensagem(mensagem, tipo = 'info') {
+            const container = document.getElementById('mensagens');
+            if (!container) return;
+
+            // Remove mensagens existentes
+            const existing = container.querySelectorAll('.alert');
+            existing.forEach(alert => alert.remove());
+
+            const div = document.createElement('div');
+            div.className = `alert alert-${tipo}`;
+            div.style.cssText = `
+                margin: 1rem 0;
+                padding: 1rem;
+                border-radius: 8px;
+                animation: fadeIn 0.3s ease;
+                position: relative;
+            `;
+
+            // Cores por tipo
+            const colors = {
+                success: '#10b981',
+                error: '#ef4444',
+                warning: '#f59e0b',
+                info: '#3b82f6'
+            };
+
+            div.style.backgroundColor = colors[tipo] || colors.info;
+            div.style.color = 'white';
+            div.textContent = mensagem;
+
+            container.appendChild(div);
+
+            // Remove automaticamente após 5 segundos
+            setTimeout(() => {
+                if (div.parentNode) {
+                    div.style.animation = 'fadeOut 0.3s ease';
+                    setTimeout(() => div.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // FAQ
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            const answer = faqItem.querySelector('.faq-answer');
+            const icon = element.querySelector('.faq-icon');
+            
+            const isOpen = faqItem.classList.contains('active');
+            
+            // Fecha todas as outras FAQs
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+                item.querySelector('.faq-answer').style.maxHeight = '0';
+                item.querySelector('.faq-icon').textContent = '+';
+            });
+            
+            // Abre/fecha a FAQ clicada
+            if (!isOpen) {
+                faqItem.classList.add('active');
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+                icon.textContent = '−';
+            }
+        }
+    </script>
+
+    <style>
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: var(--espacamento-md);
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--espacamento-lg);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .faq-question:hover {
+            background-color: #f9fafb;
+        }
+
+        .faq-question h4 {
+            margin: 0;
+            color: var(--cor-azul-sereno);
+            font-size: 1.1rem;
+        }
+
+        .faq-icon {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--cor-azul-sereno);
+            transition: transform 0.2s ease;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding: 0 var(--espacamento-lg);
+        }
+
+        .faq-item.active .faq-answer {
+            padding: 0 var(--espacamento-lg) var(--espacamento-lg) var(--espacamento-lg);
+        }
+
+        .faq-answer p {
+            margin: 0;
+            color: var(--cor-cinza-escuro);
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+    </style>
+</body>
+</html>
+
