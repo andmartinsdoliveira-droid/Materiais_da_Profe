@@ -28,6 +28,7 @@
                 
                 <nav class="nav">
                     <a href="index.html" class="nav-link" style="color: var(--cor-amarelo-sol);">Início</a>
+                    <a href="instrucoes.html" class="nav-link">Como Usar</a>
                     <a href="sobre.html" class="nav-link">Sobre</a>
                     <a href="contato.html" class="nav-link">Contato</a>
                 </nav>
@@ -181,8 +182,10 @@
     <script src="assets/js/cart-compat.js"></script>
     <script src="assets/js/cart-final-otimizado.js"></script>
     <script>
-        // Configurações globais
-        const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbxEFy0Fd1dIyTSjcibfucqDVYFDlxsdBmlsYAn046qDMIFKy7fdKBy9sLN9T1V0h66iQQ/exec';
+        // =================================================================
+        // CONFIGURAÇÃO CORRIGIDA - URL DO BACKEND NO RENDER
+        // =================================================================
+        const BACKEND_URL = 'https://backend-materiais-da-profe.onrender.com';
         window.BACKEND_URL = BACKEND_URL;
         
         let produtos = [];
@@ -209,7 +212,7 @@
 
         async function carregarProdutos() {
             try {
-                const response = await fetch(BACKEND_URL);
+                const response = await fetch(`${BACKEND_URL}/produtos`);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
@@ -373,117 +376,118 @@
 
             container.style.display = 'flex';
             
-            let paginationHTML = '';
+            let html = '';
             
             // Botão anterior
-            paginationHTML += `<button class="paginacao-btn" ${paginaAtual === 1 ? 'disabled' : ''} onclick="irParaPagina(${paginaAtual - 1})">‹</button>`;
+            if (paginaAtual > 1) {
+                html += `<button onclick="irParaPagina(${paginaAtual - 1})" class="btn btn-outline">« Anterior</button>`;
+            }
             
-            // Páginas
+            // Números das páginas
             for (let i = 1; i <= totalPaginas; i++) {
-                if (i === 1 || i === totalPaginas || (i >= paginaAtual - 2 && i <= paginaAtual + 2)) {
-                    paginationHTML += `<button class="paginacao-btn ${i === paginaAtual ? 'active' : ''}" onclick="irParaPagina(${i})">${i}</button>`;
+                if (i === paginaAtual) {
+                    html += `<button class="btn btn-primary">${i}</button>`;
+                } else if (i === 1 || i === totalPaginas || Math.abs(i - paginaAtual) <= 2) {
+                    html += `<button onclick="irParaPagina(${i})" class="btn btn-outline">${i}</button>`;
                 } else if (i === paginaAtual - 3 || i === paginaAtual + 3) {
-                    paginationHTML += `<span style="padding: 0 0.5rem;">...</span>`;
+                    html += `<span>...</span>`;
                 }
             }
             
             // Botão próximo
-            paginationHTML += `<button class="paginacao-btn" ${paginaAtual === totalPaginas ? 'disabled' : ''} onclick="irParaPagina(${paginaAtual + 1})">›</button>`;
+            if (paginaAtual < totalPaginas) {
+                html += `<button onclick="irParaPagina(${paginaAtual + 1})" class="btn btn-outline">Próximo »</button>`;
+            }
             
-            container.innerHTML = paginationHTML;
+            container.innerHTML = html;
         }
 
         function irParaPagina(pagina) {
-            if (pagina < 1 || pagina > Math.ceil(produtosFiltrados.length / itensPorPagina)) return;
-            
             paginaAtual = pagina;
             exibirProdutos();
-            atualizarPaginacao();
-            
-            // Scroll suave para o topo dos produtos
-            document.getElementById('produtosSection').scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
-            });
+            document.getElementById('produtosSection').scrollIntoView({ behavior: 'smooth' });
         }
 
         function atualizarInfoProdutos() {
             const info = document.getElementById('produtosInfo');
-            if (info) {
-                const total = produtosFiltrados.length;
-                const inicio = (paginaAtual - 1) * itensPorPagina + 1;
-                const fim = Math.min(inicio + itensPorPagina - 1, total);
-                
-                if (total > 0) {
-                    info.textContent = `Mostrando ${inicio}-${fim} de ${total} produtos`;
-                } else {
-                    info.textContent = '';
-                }
+            const total = produtosFiltrados.length;
+            const inicio = (paginaAtual - 1) * itensPorPagina + 1;
+            const fim = Math.min(inicio + itensPorPagina - 1, total);
+            
+            if (total === 0) {
+                info.textContent = 'Nenhum produto encontrado';
+            } else {
+                info.textContent = `Mostrando ${inicio}-${fim} de ${total} produtos`;
             }
         }
 
         function scrollToProdutos() {
-            document.getElementById('produtosSection').scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
-            });
+            document.getElementById('produtosSection').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function adicionarAoCarrinho(produtoId) {
-            const produto = produtos.find(p => p.ID == produtoId);
-            if (produto && window.cart) {
-                window.cart.addItem(produto);
-            }
-        }
-
-        function mostrarLoading(show) {
+        function mostrarLoading(mostrar) {
             const loading = document.getElementById('loading');
-            if (loading) {
-                loading.style.display = show ? 'flex' : 'none';
-            }
+            loading.style.display = mostrar ? 'flex' : 'none';
         }
 
-        function mostrarMensagem(mensagem, tipo = 'info') {
+        function mostrarMensagem(texto, tipo = 'info') {
             const container = document.getElementById('mensagens');
-            if (!container) return;
-
-            const div = document.createElement('div');
-            div.className = `alert alert-${tipo}`;
-            div.style.cssText = `
-                margin: 1rem 0;
-                padding: 1rem;
-                border-radius: 8px;
-                animation: fadeIn 0.3s ease;
+            const mensagem = document.createElement('div');
+            mensagem.className = `mensagem mensagem-${tipo}`;
+            mensagem.innerHTML = `
+                <span>${texto}</span>
+                <button onclick="this.parentElement.remove()" style="background:none;border:none;color:inherit;font-size:1.2rem;cursor:pointer;">&times;</button>
             `;
-            div.textContent = mensagem;
-
-            container.appendChild(div);
-
+            
+            container.appendChild(mensagem);
+            
+            // Remove automaticamente após 5 segundos
             setTimeout(() => {
-                div.style.animation = 'fadeOut 0.3s ease';
-                setTimeout(() => div.remove(), 300);
+                if (mensagem.parentElement) {
+                    mensagem.remove();
+                }
             }, 5000);
         }
 
-        function formatarPreco(preco) {
-            if (!preco) return 'R$ 0,00';
-            const num = parseFloat(preco.toString().replace(',', '.'));
-            return `R$ ${num.toFixed(2).replace('.', ',')}`;
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function debounce(func, delay) {
-            let timeoutId;
-            return function (...args) {
-                clearTimeout(timeoutId);
-                timeoutId = setTimeout(() => func.apply(this, args), delay);
+        // Função auxiliar para debounce
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
             };
+        }
+
+        // Função auxiliar para escape HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+        }
+
+        // Função auxiliar para formatar preço
+        function formatarPreco(preco) {
+            const valor = parseFloat(preco) || 0;
+            return `R$ ${valor.toFixed(2).replace('.', ',')}`;
+        }
+
+        // Função para adicionar ao carrinho (implementada no cart-final-otimizado.js)
+        function adicionarAoCarrinho(produtoId) {
+            if (window.CartManager) {
+                window.CartManager.adicionarItem(produtoId);
+            } else {
+                console.error('CartManager não encontrado');
+                mostrarMensagem('Erro ao adicionar produto ao carrinho', 'error');
+            }
         }
     </script>
 </body>

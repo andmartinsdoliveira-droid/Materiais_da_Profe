@@ -28,6 +28,7 @@
                 
                 <nav class="nav">
                     <a href="index.html" class="nav-link">Início</a>
+                    <a href="instrucoes.html" class="nav-link">Como Usar</a>
                     <a href="sobre.html" class="nav-link">Sobre</a>
                     <a href="contato.html" class="nav-link" style="color: var(--cor-amarelo-sol);">Contato</a>
                 </nav>
@@ -277,7 +278,7 @@
     <script src="assets/js/cart-final-otimizado.js"></script>
     <script>
         // Configuração do backend
-        const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbxEFy0Fd1dIyTSjcibfucqDVYFDlxsdBmlsYAn046qDMIFKy7fdKBy9sLN9T1V0h66iQQ/exec';
+        const BACKEND_URL = 'https://backend-materiais-da-profe.onrender.com';
         window.BACKEND_URL = BACKEND_URL;
 
         // Funcionalidade de busca
@@ -320,161 +321,5 @@
             if (!validarEmail(email)) {
                 mostrarMensagem('Por favor, insira um e-mail válido.', 'error');
                 return;
-            }
-
-            // Simula envio (aqui você integraria com seu backend)
-            mostrarMensagem('Enviando mensagem...', 'info');
-
-            try {
-                // Simula delay de envio
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                // Aqui você faria a integração real com seu backend
-                // const response = await fetch(BACKEND_URL, { ... });
-                
-                mostrarMensagem('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
-                document.getElementById('contatoForm').reset();
-                
-            } catch (error) {
-                console.error('Erro ao enviar mensagem:', error);
-                mostrarMensagem('Erro ao enviar mensagem. Tente novamente ou entre em contato pelo WhatsApp.', 'error');
-            }
-        }
-
-        function validarEmail(email) {
-            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return regex.test(email);
-        }
-
-        function mostrarMensagem(mensagem, tipo = 'info') {
-            const container = document.getElementById('mensagens');
-            if (!container) return;
-
-            // Remove mensagens existentes
-            const existing = container.querySelectorAll('.alert');
-            existing.forEach(alert => alert.remove());
-
-            const div = document.createElement('div');
-            div.className = `alert alert-${tipo}`;
-            div.style.cssText = `
-                margin: 1rem 0;
-                padding: 1rem;
-                border-radius: 8px;
-                animation: fadeIn 0.3s ease;
-                position: relative;
-            `;
-
-            // Cores por tipo
-            const colors = {
-                success: '#10b981',
-                error: '#ef4444',
-                warning: '#f59e0b',
-                info: '#3b82f6'
-            };
-
-            div.style.backgroundColor = colors[tipo] || colors.info;
-            div.style.color = 'white';
-            div.textContent = mensagem;
-
-            container.appendChild(div);
-
-            // Remove automaticamente após 5 segundos
-            setTimeout(() => {
-                if (div.parentNode) {
-                    div.style.animation = 'fadeOut 0.3s ease';
-                    setTimeout(() => div.remove(), 300);
-                }
-            }, 5000);
-        }
-
-        // FAQ
-        function toggleFaq(element) {
-            const faqItem = element.parentElement;
-            const answer = faqItem.querySelector('.faq-answer');
-            const icon = element.querySelector('.faq-icon');
             
-            const isOpen = faqItem.classList.contains('active');
-            
-            // Fecha todas as outras FAQs
-            document.querySelectorAll('.faq-item').forEach(item => {
-                item.classList.remove('active');
-                item.querySelector('.faq-answer').style.maxHeight = '0';
-                item.querySelector('.faq-icon').textContent = '+';
-            });
-            
-            // Abre/fecha a FAQ clicada
-            if (!isOpen) {
-                faqItem.classList.add('active');
-                answer.style.maxHeight = answer.scrollHeight + 'px';
-                icon.textContent = '−';
-            }
-        }
-    </script>
-
-    <style>
-        .faq-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .faq-item {
-            border-bottom: 1px solid #e5e7eb;
-            margin-bottom: var(--espacamento-md);
-        }
-
-        .faq-question {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: var(--espacamento-lg);
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        .faq-question:hover {
-            background-color: #f9fafb;
-        }
-
-        .faq-question h4 {
-            margin: 0;
-            color: var(--cor-azul-sereno);
-            font-size: 1.1rem;
-        }
-
-        .faq-icon {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--cor-azul-sereno);
-            transition: transform 0.2s ease;
-        }
-
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-            padding: 0 var(--espacamento-lg);
-        }
-
-        .faq-item.active .faq-answer {
-            padding: 0 var(--espacamento-lg) var(--espacamento-lg) var(--espacamento-lg);
-        }
-
-        .faq-answer p {
-            margin: 0;
-            color: var(--cor-cinza-escuro);
-            line-height: 1.6;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(-10px); }
-        }
-    </style>
-</body>
-</html>
-
+(Content truncated due to size limit. Use page ranges or line ranges to read remaining content)

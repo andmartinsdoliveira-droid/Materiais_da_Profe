@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Como Usar a Loja - Espaço do Educador</title>
+    <meta name="description" content="Guia completo de como navegar, comprar e receber seus materiais pedagógicos no Espaço do Educador, incluindo Perguntas Frequentes.">
+    <link rel="stylesheet" href="assets/css/styles-educacional.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><text y=\'.9em\' font-size=\'90\'>🎓</text></svg>">
+    <style>
+        /* Estilos para o Acordeão do FAQ */
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .faq-item {
+            background-color: var(--cor-branco);
+            border: 1px solid var(--cor-cinza-claro);
+            border-radius: var(--borda-arredondada);
+            margin-bottom: var(--espacamento-md);
+            overflow: hidden;
+        }
+        .faq-question {
+            padding: var(--espacamento-md) var(--espacamento-lg);
+            background-color: var(--cor-primaria-claro);
+            color: var(--cor-texto-escuro);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .faq-question:hover {
+            background-color: var(--cor-primaria-medio);
+        }
+        .faq-question.active {
+            background-color: var(--cor-primaria);
+            color: var(--cor-branco);
+        }
+        .faq-question.active .faq-icon {
+            transform: rotate(180deg);
+        }
+        .faq-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+        .faq-answer {
+            padding: 0 var(--espacamento-lg);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+            background-color: var(--cor-branco);
+            color: var(--cor-cinza-escuro);
+        }
+        .faq-answer.open {
+            max-height: 200px; /* Ajuste conforme o conteúdo máximo esperado */
+            padding: var(--espacamento-md) var(--espacamento-lg);
+        }
+        .faq-answer p {
+            margin-bottom: var(--espacamento-md);
+        }
+    </style>
+</head>
+<body>
+    <!-- Banner com Logo -->
+    <div class="banner" onclick="window.location.href=\'index.html\'">
+        <div class="banner-content">
+            <div class="banner-logo">🎓</div>
+            <div class="banner-text">
+                <div class="banner-title">Loja Mundo da Profe</div>
+                <div class="banner-subtitle">Olá! Seja muito bem-vinda!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">Espaço do Educador</a>
+                
+                <nav class="nav">
+                    <a href="index.html" class="nav-link">Início</a>
+                    <a href="instrucoes.html" class="nav-link" style="color: var(--cor-amarelo-sol);">Como Usar</a>
+                    <a href="sobre.html" class="nav-link">Sobre</a>
+                    <a href="contato.html" class="nav-link">Contato</a>
+                </nav>
+                
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Buscar recursos...">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <section style="padding: var(--espacamento-xxl) 0;">
+            <h1 style="text-align: center; margin-bottom: var(--espacamento-xl);">Como Usar Nossa Loja de Materiais Pedagógicos</h1>
+            
+            <div class="card" style="margin-bottom: var(--espacamento-xxl);">
+                <div class="card-body">
+                    <p style="font-size: 1.1rem; line-height: 1.7; color: var(--cor-cinza-escuro);">
+                        Bem-vinda ao Espaço do Educador! Aqui, você encontra recursos pedagógicos de alta qualidade, criados com carinho para professoras apaixonadas pelo ensino infantil e fundamental 1. Nosso objetivo é tornar sua experiência de compra simples, rápida e totalmente automática. Siga este guia para aproveitar ao máximo nossa loja:
+                    </p>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: var(--espacamento-xxl);">
+                <div class="card-header"><h2 style="margin:0;color:white;">1. Navegando e Encontrando Produtos</h2></div>
+                <div class="card-body">
+                    <h3>Catálogo Principal</h3>
+                    <p>Ao acessar a página inicial, você verá nosso catálogo completo de materiais. Role a página para explorar ou use as ferramentas de busca e filtro para refinar sua pesquisa.</p>
+                    
+                    <h3>Detalhes do Produto</h3>
+                    <ul>
+                        <li>Clique em <strong>"Ver Detalhes"</strong> em qualquer produto para acessar sua página individual. Lá, você encontrará uma descrição completa, mais imagens e sugestões de produtos relacionados.</li>
+                    </ul>
+
+                    <h3>Busca e Filtros Inteligentes</h3>
+                    <ul>
+                        <li><strong>Barra de Busca (🔍):</strong> Digite palavras-chave (ex: "alfabetização", "matemática") na barra de busca no topo da página para encontrar materiais específicos.</li>
+                        <li><strong>Filtros:</strong> Use os filtros de <strong>Categoria</strong> (ex: "Educação Infantil", "Fundamental 1"), <strong>Preço</strong> e <strong>Ordenação</strong> (por nome, menor/maior preço, mais recente) para organizar os resultados.</li>
+                        <li><strong>Dica:</strong> Se um produto "sumir" da lista, verifique se algum filtro está ativo. Clique em <strong>"Limpar Filtros"</strong> para redefinir a visualização.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: var(--espacamento-xxl);">
+                <div class="card-header"><h2 style="margin:0;color:white;">2. Processo de Compra e Recebimento</h2></div>
+                <div class="card-body">
+                    <h3>Adicionar ao Carrinho</h3>
+                    <ul>
+                        <li>Quando encontrar um material que deseja, clique em <strong>"Adicionar ao Carrinho"</strong>. O ícone do carrinho (🛒) no canto inferior direito mostrará a quantidade de itens.</li>
+                        <li>Clique no ícone do carrinho para visualizar os itens adicionados, ajustar quantidades (se permitido) ou remover produtos.</li>
+                    </ul>
+
+                    <h3>Finalizar Compra</h3>
+                    <ul>
+                        <li>No modal do carrinho, clique em <strong>"Finalizar Compra"</strong>.</li>
+                        <li>Você será guiada por um formulário simples para preencher seus dados (Nome, E-mail, Telefone).</li>
+                        <li>Após preencher, você será redirecionada para o ambiente seguro do <strong>Mercado Pago</strong> para efetuar o pagamento.</li>
+                    </ul>
+
+                    <h3>Recebimento Imediato dos Materiais (Automático por E-mail e WhatsApp!)</h3>
+                    <ul>
+                        <li>Assim que o pagamento for **confirmado pelo Mercado Pago**, nosso sistema enviará **automaticamente** um e-mail para o endereço que você informou no checkout.</li>
+                        <li>Além do e-mail, você também receberá os links para download **via WhatsApp** no número cadastrado, garantindo que você tenha acesso rápido e fácil aos seus materiais.</li>
+                        <li>Este e-mail e a mensagem do WhatsApp conterão os **links diretos para download** dos seus materiais pedagógicos. Não há necessidade de contato manual ou espera!</li>
+                        <li><strong>Importante:</strong> Verifique sua caixa de entrada (e a pasta de spam/lixo eletrônico) e suas mensagens do WhatsApp.</li>
+                    </ul>
+                    <p style="font-size: 1.1rem; line-height: 1.7; color: var(--cor-verde-esperanca); font-weight: bold; text-align: center; margin-top: var(--espacamento-xl);">
+                        Fácil e direto, para você receber seus materiais com toda a comodidade e suporte necessário!
+                    </p>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: var(--espacamento-xxl);">
+                <div class="card-header"><h2 style="margin:0;color:white;">3. Perguntas Frequentes (FAQ)</h2></div>
+                <div class="card-body faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question">Como recebo meus materiais após a compra? <span class="faq-icon">▼</span></div>
+                        <div class="faq-answer"><p>Seus materiais são enviados automaticamente por e-mail e WhatsApp, com os links para download, logo após a confirmação do pagamento pelo Mercado Pago. Verifique sua caixa de entrada (incluindo spam) e suas mensagens do WhatsApp.</p></div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Qual o formato dos materiais? <span class="faq-icon">▼</span></div>
+                        <div class="faq-answer"><p>Todos os nossos materiais são em formato PDF de alta qualidade, prontos para impressão e uso imediato.</p></div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Posso comprar o mesmo material mais de uma vez? <span class="faq-icon">▼</span></div>
+                        <div class="faq-answer"><p>O sistema de carrinho limita a adição de cada material a uma única vez para evitar confusão no processo de download. Se precisar de múltiplas licenças, por favor, entre em contato.</p></div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">E se eu não receber os links? <span class="faq-icon">▼</span></div>
+                        <div class="faq-answer"><p>Primeiro, verifique sua caixa de spam ou lixo eletrônico e suas mensagens do WhatsApp. Se ainda assim não encontrar, entre em contato com nosso suporte pelo e-mail `contato@espacodoeducador.com` ou telefone `(11) 99999-9999`, informando o número do seu pedido.</p></div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Quais formas de pagamento são aceitas? <span class="faq-icon">▼</span></div>
+                        <div class="faq-answer"><p>Aceitamos pagamentos via Mercado Pago, que oferece diversas opções como cartão de crédito, boleto e Pix.</p></div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Como entro em contato com o suporte? <span class="faq-icon">▼</span></div>
+                        <div class="faq-answer"><p>Você pode nos contatar pelo e-mail `contato@espacodoeducador.com` ou pelo telefone `(11) 99999-9999` (WhatsApp).</p></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Carrinho Flutuante -->
+    <div class="carrinho-flutuante">
+        <button id="carrinhoBtn" class="carrinho-btn" title="Ver Carrinho">
+            🛒
+            <span id="carrinhoContador" class="carrinho-contador" style="display: none;">0</span>
+        </button>
+    </div>
+
+    <!-- Modal do Carrinho -->
+    <div id="carrinhoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Meu Carrinho</h3>
+                <button id="fecharCarrinho" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="carrinhoItens"></div>
+                <div id="carrinhoVazio" style="text-align:center;padding:2rem;display:none;">
+                    <p>Seu carrinho está vazio</p>
+                    <p style="color:var(--cor-cinza-escuro);font-size:0.9rem;">Adicione alguns recursos pedagógicos para começar!</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div style="width:100%;">
+                    <div id="carrinhoTotal" style="text-align:right;margin-bottom:1rem;">
+                        <strong>Total: R$ <span id="valorTotal">0,00</span></strong>
+                    </div>
+                    <div style="display:flex;gap:1rem;justify-content:flex-end;">
+                        <button id="limparCarrinho" class="btn btn-outline">Limpar Carrinho</button>
+                        <button id="finalizarCompra" class="btn btn-success">Finalizar Compra</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Espaço do Educador</h3>
+                    <p>Recursos pedagógicos de qualidade para transformar a educação e inspirar o aprendizado.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Links Úteis</h3>
+                    <p><a href="index.html">Catálogo</a></p>
+                    <p><a href="instrucoes.html">Como Usar</a></p>
+                    <p><a href="sobre.html">Sobre Nós</a></p>
+                    <p><a href="contato.html">Contato</a></p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Suporte</h3>
+                    <p>📧 contato@espacodoeducador.com</p>
+                    <p>📱 (11) 99999-9999</p>
+                    <p>🕒 Seg-Sex: 8h às 18h</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Espaço do Educador. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/cart-compat.js"></script>
+    <script src="assets/js/cart-final-otimizado.js"></script>
+    <script>
+        // =================================================================
+        // CONFIGURAÇÃO CORRIGIDA - URL DO BACKEND NO RENDER
+        // =================================================================
+        const BACKEND_URL = \'https://backend-materiais-da-profe.onrender.com\';
+        window.BACKEND_URL = BACKEND_URL;
+
+        // Script para o Acordeão do FAQ
+        document.addEventListener(\'DOMContentLoaded\', function() {
+            const faqQuestions = document.querySelectorAll(\'.faq-question\');
+
+            faqQuestions.forEach(question => {
+                question.addEventListener(\'click\', function() {
+                    const answer = this.nextElementSibling;
+                    const icon = this.querySelector(\'.faq-icon\');
+
+                    // Fecha todas as outras respostas
+                    faqQuestions.forEach(otherQuestion => {
+                        if (otherQuestion !== this) {
+                            otherQuestion.classList.remove(\'active\');
+                            otherQuestion.nextElementSibling.classList.remove(\'open\');
+                            otherQuestion.nextElementSibling.style.maxHeight = null;
+                            otherQuestion.querySelector(\'.faq-icon\').style.transform = \'rotate(0deg)\';
+                        }
+                    });
+
+                    // Abre ou fecha a resposta clicada
+                    this.classList.toggle(\'active\');
+                    answer.classList.toggle(\'open\');
+                    if (answer.classList.contains(\'open\')) {
+                        answer.style.maxHeight = answer.scrollHeight + \'px\';
+                        icon.style.transform = \'rotate(180deg)\';
+                    } else {
+                        answer.style.maxHeight = null;
+                        icon.style.transform = \'rotate(0deg)\';
+                    }
+                });
+            });
+        });
+
+        // Funcionalidade de busca (se houver na página)
+        const searchInput = document.getElementById(\'searchInput\');
+        if (searchInput) {
+            searchInput.addEventListener(\'keypress\', function(e) {
+                if (e.key === \'Enter\') {
+                    const query = this.value;
+                    if (query) {
+                        window.location.href = `index.html?search=${encodeURIComponent(query)}`;
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
+
