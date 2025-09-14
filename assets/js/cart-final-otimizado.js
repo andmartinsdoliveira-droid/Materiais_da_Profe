@@ -1,7 +1,7 @@
 /**
  * SISTEMA DE CARRINHO - LOJA EDUCACIONAL
- * Versão: 4.0 - Final Otimizado
- * Data: Agosto 2024
+ * Versão: 4.1 - Final Corrigido
+ * Data: Dezembro 2024
  * 
  * Funcionalidades:
  * - Carrinho persistente com localStorage
@@ -18,7 +18,7 @@
 const CartConfig = {
   STORAGE_KEY: 'espacoEducador_carrinho',
   MAX_QUANTITY: 1, // Máximo 1 item por produto (evita duplicatas)
-  BACKEND_URL: window.BACKEND_URL || 'https://script.google.com/macros/s/AKfycbxEFy0Fd1dIyTSjcibfucqDVYFDlxsdBmlsYAn046qDMIFKy7fdKBy9sLN9T1V0h66iQQ/exec',
+  BACKEND_URL: window.BACKEND_URL || 'https://backend-materiais-da-profe.onrender.com',
   MERCADO_PAGO_PUBLIC_KEY: 'SUA_PUBLIC_KEY_AQUI'
 };
 
@@ -40,14 +40,12 @@ class ShoppingCart {
     this.updateCounter();
     this.bindEvents();
     this.createCheckoutModal();
-     // --- PROTEÇÃO MINIMAL: garantir que o modal do carrinho comece sempre fechado ---
-    // (alteração mínima: evita o problema do carrinho começar aberto)
+    // Garantir que o modal do carrinho comece sempre fechado
     const carrinhoModal = document.getElementById('carrinhoModal');
     if (carrinhoModal) {
       try { carrinhoModal.style.display = 'none'; } catch (e) { /* silent */ }
     }
     try { document.body.style.overflow = ''; } catch (e) { /* silent */ }
-    // -------------------------------------------------------------------------------
   }
 
   /**
@@ -310,68 +308,68 @@ class ShoppingCart {
     modal.style.display = 'none';
     
     modal.innerHTML = `
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 class="modal-title">Finalizar Compra</h3>
-      <button id="fecharCheckout" class="modal-close">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div id="checkoutStep1" class="checkout-step active">
-        <form id="checkoutForm">
-          <div class="form-group">
-            <label class="form-label">Nome Completo *</label>
-            <input type="text" id="customerName" class="form-input" required>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">Finalizar Compra</h3>
+          <button id="fecharCheckout" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="checkoutStep1" class="checkout-step active">
+            <form id="checkoutForm">
+              <div class="form-group">
+                <label class="form-label">Nome Completo *</label>
+                <input type="text" id="customerName" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">E-mail *</label>
+                <input type="email" id="customerEmail" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Telefone (WhatsApp)</label>
+                <input type="tel" id="customerPhone" class="form-input" placeholder="(11) 99999-9999">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Observações</label>
+                <textarea id="orderNotes" class="form-input" rows="3" placeholder="Informações adicionais sobre o pedido..."></textarea>
+              </div>
+              <div class="checkout-total">
+                <strong>Total: R$ <span id="checkoutTotal">0,00</span></strong>
+              </div>
+            </form>
           </div>
-          <div class="form-group">
-            <label class="form-label">E-mail *</label>
-            <input type="email" id="customerEmail" class="form-input" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Telefone (WhatsApp)</label>
-            <input type="tel" id="customerPhone" class="form-input" placeholder="(11) 99999-9999">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Observações</label>
-            <textarea id="orderNotes" class="form-input" rows="3" placeholder="Informações adicionais sobre o pedido..."></textarea>
-          </div>
-          <div class="checkout-total">
-            <strong>Total: R$ <span id="checkoutTotal">0,00</span></strong>
-          </div>
-        </form>
-      </div>
 
-      <div id="checkoutStep2" class="checkout-step" style="display:none;">
-        <h4>Resumo do Pedido</h4>
-        <div id="resumoPedidoItens"></div>
-        <div class="checkout-total">
-          <strong>Total do Pedido: R$ <span id="resumoPedidoTotal">0,00</span></strong>
+          <div id="checkoutStep2" class="checkout-step" style="display:none;">
+            <h4>Resumo do Pedido</h4>
+            <div id="resumoPedidoItens"></div>
+            <div class="checkout-total">
+              <strong>Total do Pedido: R$ <span id="resumoPedidoTotal">0,00</span></strong>
+            </div>
+            <div id="walletBrick_container" style="margin-top:1rem;"></div>
+            <button id="btnPagarMercadoPago" class="btn btn-success btn-lg" style="width:100%; margin-top: 1rem;">Pagar com Mercado Pago</button>
+            <button id="btnVoltarEtapa1" class="btn btn-outline" style="width:100%; margin-top: 0.5rem;">Voltar</button>
+          </div>
         </div>
-          <div id="walletBrick_container" style="margin-top:1rem;"></div>
-        <button id="btnPagarMercadoPago" class="btn btn-success btn-lg" style="width:100%; margin-top: 1rem;">Pagar com Mercado Pago</button>
-        <button id="btnVoltarEtapa1" class="btn btn-outline" style="width:100%; margin-top: 0.5rem;">Voltar</button>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <div style="width:100%;">
-        <div style="display:flex;gap:1rem;justify-content:flex-end;">
-          <button id="cancelarCheckout" class="btn btn-outline">Cancelar</button>
-          <button id="avancarEtapa1" class="btn btn-success">Continuar</button>
+        <div class="modal-footer">
+          <div style="width:100%;">
+            <div style="display:flex;gap:1rem;justify-content:flex-end;">
+              <button id="cancelarCheckout" class="btn btn-outline">Cancelar</button>
+              <button id="avancarEtapa1" class="btn btn-success">Continuar</button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-`;
+    `;
 
     document.body.appendChild(modal);
 
     // Bind eventos do checkout
-   document.getElementById('fecharCheckout').onclick = () => this.hideCheckoutForm();
-document.getElementById('cancelarCheckout').onclick = () => this.hideCheckoutForm();
-document.getElementById('avancarEtapa1').onclick = () => this.continuarCheckout();
-document.getElementById('btnVoltarEtapa1').onclick = () => this.mostrarCheckoutStep(1);
-document.getElementById('btnPagarMercadoPago').onclick = () => this.processCheckout();
+    document.getElementById('fecharCheckout').onclick = () => this.hideCheckoutForm();
+    document.getElementById('cancelarCheckout').onclick = () => this.hideCheckoutForm();
+    document.getElementById('avancarEtapa1').onclick = () => this.continuarCheckout();
+    document.getElementById('btnVoltarEtapa1').onclick = () => this.mostrarCheckoutStep(1);
+    document.getElementById('btnPagarMercadoPago').onclick = () => this.processCheckout();
 
-modal.addEventListener('click', (e) => { if (e.target === modal) this.hideCheckoutForm(); });
+    modal.addEventListener('click', (e) => { if (e.target === modal) this.hideCheckoutForm(); });
   }
 
   /**
@@ -390,15 +388,15 @@ modal.addEventListener('click', (e) => { if (e.target === modal) this.hideChecko
       if (totalElement) {
         totalElement.textContent = this.formatPrice(this.getTotalValue()).replace('R$ ', '');
       }
-     this.mostrarCheckoutStep(1);
+      this.mostrarCheckoutStep(1);
 
-    // Se existirem dados gravados do cliente, re-hidratar inputs
-    if (this.customerData) {
-      if (this.customerData.name) document.getElementById('customerName').value = this.customerData.name;
-      if (this.customerData.email) document.getElementById('customerEmail').value = this.customerData.email;
-      if (this.customerData.phone) document.getElementById('customerPhone').value = this.customerData.phone;
-      if (this.customerData.notes) document.getElementById('orderNotes').value = this.customerData.notes;
-    }
+      // Se existirem dados gravados do cliente, re-hidratar inputs
+      if (this.customerData) {
+        if (this.customerData.name) document.getElementById('customerName').value = this.customerData.name;
+        if (this.customerData.email) document.getElementById('customerEmail').value = this.customerData.email;
+        if (this.customerData.phone) document.getElementById('customerPhone').value = this.customerData.phone;
+        if (this.customerData.notes) document.getElementById('orderNotes').value = this.customerData.notes;
+      }
       modal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
     }
@@ -427,15 +425,12 @@ modal.addEventListener('click', (e) => { if (e.target === modal) this.hideChecko
   }
 
   /**
-   * Processa checkout
+   * Continua para próxima etapa do checkout
    */
-  async processCheckout() {
+  continuarCheckout() {
     const name = document.getElementById('customerName')?.value?.trim();
     const email = document.getElementById('customerEmail')?.value?.trim();
-    const phone = document.getElementById('customerPhone')?.value?.trim();
-    const notes = document.getElementById('orderNotes')?.value?.trim();
 
-    // Validações
     if (!name) {
       this.showNotification('Nome é obrigatório', 'error');
       return;
@@ -451,6 +446,68 @@ modal.addEventListener('click', (e) => { if (e.target === modal) this.hideChecko
       return;
     }
 
+    // Salva dados do cliente
+    this.customerData = {
+      name: name,
+      email: email,
+      phone: document.getElementById('customerPhone')?.value?.trim() || '',
+      notes: document.getElementById('orderNotes')?.value?.trim() || ''
+    };
+
+    this.mostrarCheckoutStep(2);
+  }
+
+  /**
+   * Mostra etapa específica do checkout
+   */
+  mostrarCheckoutStep(step) {
+    this.currentCheckoutStep = step;
+    
+    const step1 = document.getElementById('checkoutStep1');
+    const step2 = document.getElementById('checkoutStep2');
+    const footer = document.querySelector('#checkoutModal .modal-footer');
+
+    if (step === 1) {
+      if (step1) step1.style.display = 'block';
+      if (step2) step2.style.display = 'none';
+      if (footer) footer.style.display = 'block';
+    } else if (step === 2) {
+      if (step1) step1.style.display = 'none';
+      if (step2) step2.style.display = 'block';
+      if (footer) footer.style.display = 'none';
+      
+      this.renderResumoCheckout();
+    }
+  }
+
+  /**
+   * Renderiza resumo do checkout
+   */
+  renderResumoCheckout() {
+    const container = document.getElementById('resumoPedidoItens');
+    const totalElement = document.getElementById('resumoPedidoTotal');
+
+    if (container) {
+      container.innerHTML = this.items.map(item => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid #eee;">
+          <div>
+            <strong>${this.escapeHtml(item.title)}</strong>
+            <div style="font-size:0.9rem;color:#666;">Qtd: ${item.quantity}</div>
+          </div>
+          <div style="font-weight:bold;">${this.formatPrice(item.unit_price * item.quantity)}</div>
+        </div>
+      `).join('');
+    }
+
+    if (totalElement) {
+      totalElement.textContent = this.formatPrice(this.getTotalValue()).replace('R$ ', '');
+    }
+  }
+
+  /**
+   * Processa checkout com Mercado Pago
+   */
+  async processCheckout() {
     if (this.items.length === 0) {
       this.showNotification('Carrinho vazio', 'error');
       return;
@@ -465,41 +522,46 @@ modal.addEventListener('click', (e) => { if (e.target === modal) this.hideChecko
     }
 
     try {
-      // Dados do checkout manual
-      const checkoutData = {
-        action: 'checkout_manual',
+      // Dados para criar preferência no Mercado Pago
+      const preferenceData = {
         items: this.items,
-        customer: {
-          nome: name,
-          email: email,
-          telefone: phone
+        payer: {
+          name: this.customerData.name,
+          email: this.customerData.email,
+          phone: this.customerData.phone
         },
-        notes: notes
+        metadata: {
+          customer_name: this.customerData.name,
+          customer_phone: this.customerData.phone,
+          order_notes: this.customerData.notes
+        }
       };
 
-      // Enviar para backend
-      const response = await fetch(CartConfig.BACKEND_URL, {
+      // Chama endpoint do backend para criar preferência
+      const response = await fetch(`${CartConfig.BACKEND_URL}/create_preference`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(checkoutData)
+        body: JSON.stringify(preferenceData)
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
       const result = await response.json();
 
-      if (result.success) {
-        this.showNotification('Pedido enviado com sucesso! Você receberá instruções por email.', 'success');
-        this.clearCart();
-        this.hideCheckoutForm();
-        this.closeCart();
+      if (result.init_point) {
+        // Redireciona para o Mercado Pago
+        window.location.href = result.init_point;
       } else {
-        throw new Error(result.error || 'Erro ao processar pedido');
+        throw new Error('Erro ao criar preferência de pagamento');
       }
 
     } catch (error) {
       console.error('Erro no checkout:', error);
-      this.showNotification('Erro ao processar pedido. Tente novamente.', 'error');
+      this.showNotification('Erro ao processar pagamento. Tente novamente.', 'error');
     } finally {
       // Reabilita botão
       if (payBtn) {
@@ -508,66 +570,6 @@ modal.addEventListener('click', (e) => { if (e.target === modal) this.hideChecko
       }
     }
   }
-
- mostrarCheckoutStep(step) {
-  const step1 = document.getElementById('checkoutStep1');
-  const step2 = document.getElementById('checkoutStep2');
-  const avancarBtn = document.getElementById('avancarEtapa1');
-
-  if (!step1 || !step2) return;
-
-  if (step === 1) {
-    step1.style.display = 'block';
-    step2.style.display = 'none';
-    if (avancarBtn) avancarBtn.style.display = 'inline-block';
-    this.currentCheckoutStep = 1;
-  } else if (step === 2) {
-    this.gerarResumoPedido();
-    step1.style.display = 'none';
-    step2.style.display = 'block';
-    if (avancarBtn) avancarBtn.style.display = 'none';
-    this.currentCheckoutStep = 2;
-  }
-}
-
-continuarCheckout() {
-  const name = document.getElementById('customerName')?.value?.trim();
-  const email = document.getElementById('customerEmail')?.value?.trim();
-  const phone = document.getElementById('customerPhone')?.value?.trim();
-
-  if (!name || !email) {
-    this.showNotification('Por favor, preencha seu nome e e-mail.', 'error');
-    return;
-  }
-  if (!this.validateEmail(email)) {
-    this.showNotification('Por favor, insira um e-mail válido.', 'error');
-    return;
-  }
-
-  this.customerData = { name, email, phone };
-  this.mostrarCheckoutStep(2);
-}
-
-gerarResumoPedido() {
-  const resumoItensContainer = document.getElementById('resumoPedidoItens');
-  const resumoTotalElement = document.getElementById('resumoPedidoTotal');
-  if (!resumoItensContainer || !resumoTotalElement) return;
-
-  if (this.items.length === 0) {
-    resumoItensContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
-    resumoTotalElement.textContent = '0,00';
-    return;
-  }
-
-  resumoItensContainer.innerHTML = this.items.map(item => `
-    <div class="resumo-item">
-      <span>${this.escapeHtml(item.title)} x ${item.quantity}</span>
-      <span>${this.formatPrice(item.unit_price * item.quantity)}</span>
-    </div>
-  `).join('');
-
-  resumoTotalElement.textContent = this.formatPrice(this.getTotalValue()).replace('R$ ', '');
-}
 
   /**
    * Salva carrinho no localStorage
@@ -597,16 +599,15 @@ gerarResumoPedido() {
    * Valida email
    */
   validateEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
   }
 
   /**
    * Formata preço
    */
   formatPrice(price) {
-    if (!price) return 'R$ 0,00';
-    const num = parseFloat(price);
+    const num = parseFloat(price) || 0;
     return `R$ ${num.toFixed(2).replace('.', ',')}`;
   }
 
@@ -615,9 +616,14 @@ gerarResumoPedido() {
    */
   escapeHtml(text) {
     if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
   }
 
   /**
@@ -635,294 +641,148 @@ gerarResumoPedido() {
       position: fixed;
       top: 20px;
       right: 20px;
-      z-index: 10000;
-      max-width: 400px;
-      padding: 1rem;
-      border-radius: 8px;
+      background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : type === 'warning' ? '#ff9800' : '#2196F3'};
       color: white;
-      font-weight: 500;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10000;
+      max-width: 300px;
       animation: slideInRight 0.3s ease;
-      cursor: pointer;
     `;
-
-    // Cores por tipo
-    const colors = {
-      success: '#10b981',
-      error: '#ef4444',
-      warning: '#f59e0b',
-      info: '#3b82f6'
-    };
-
-    notification.style.backgroundColor = colors[type] || colors.info;
     notification.textContent = message;
-
-    // Adiciona botão de fechar
-    const closeBtn = document.createElement('span');
-    closeBtn.innerHTML = '&times;';
-    closeBtn.style.cssText = `
-      float: right;
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin-left: 10px;
-      cursor: pointer;
-    `;
-    closeBtn.onclick = () => notification.remove();
-    notification.appendChild(closeBtn);
 
     document.body.appendChild(notification);
 
-    // Remove automaticamente
+    // Remove após 4 segundos
     setTimeout(() => {
-      if (notification.parentNode) {
-        notification.style.animation = 'slideOutRight 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-      }
-    }, 5000);
+      notification.style.animation = 'slideOutRight 0.3s ease';
+      setTimeout(() => notification.remove(), 300);
+    }, 4000);
+  }
 
-    // Remove ao clicar
-    notification.onclick = () => notification.remove();
+  /**
+   * Abre modal do carrinho (método público)
+   */
+  abrirModal() {
+    this.openCart();
   }
 }
 
-// ==================== INSTÂNCIA GLOBAL ====================
+// ==================== MANAGER DE CARRINHO ====================
 
-// Cria instância global do carrinho
-let cart;
+class CartManager {
+  constructor() {
+    this.cart = null;
+    this.produtos = [];
+    this.init();
+  }
 
-// Inicializa quando DOM estiver pronto
+  async init() {
+    // Aguarda DOM estar pronto
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => this.initCart());
+    } else {
+      this.initCart();
+    }
+  }
+
+  initCart() {
+    this.cart = new ShoppingCart();
+    this.loadProdutos();
+  }
+
+  async loadProdutos() {
+    try {
+      const response = await fetch(`${CartConfig.BACKEND_URL}/produtos`);
+      if (response.ok) {
+        this.produtos = await response.json();
+      }
+    } catch (error) {
+      console.error('Erro ao carregar produtos para o carrinho:', error);
+    }
+  }
+
+  adicionarItem(produtoId) {
+    const produto = this.produtos.find(p => String(p.ID) === String(produtoId));
+    if (produto && this.cart) {
+      return this.cart.addItem(produto);
+    } else {
+      console.error('Produto não encontrado:', produtoId);
+      return false;
+    }
+  }
+
+  removerItem(produtoId) {
+    if (this.cart) {
+      this.cart.removeItem(produtoId);
+    }
+  }
+
+  limparCarrinho() {
+    if (this.cart) {
+      this.cart.clearCart();
+    }
+  }
+
+  abrirModal() {
+    if (this.cart) {
+      this.cart.abrirModal();
+    }
+  }
+
+  getItens() {
+    return this.cart ? this.cart.getItems() : [];
+  }
+
+  getTotal() {
+    return this.cart ? this.cart.getTotalValue() : 0;
+  }
+}
+
+// ==================== INICIALIZAÇÃO GLOBAL ====================
+
+// Instância global do gerenciador de carrinho
+let cartManager = null;
+let cart = null;
+
+// Inicializa quando o DOM estiver pronto
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    cart = new ShoppingCart();
-    window.cart = cart; // Disponibiliza globalmente
-  });
+  document.addEventListener('DOMContentLoaded', initializeCart);
 } else {
-  cart = new ShoppingCart();
+  initializeCart();
+}
+
+function initializeCart() {
+  cartManager = new CartManager();
+  cart = cartManager.cart; // Para compatibilidade com código existente
+  
+  // Expõe globalmente para compatibilidade
+  window.CartManager = cartManager;
   window.cart = cart;
 }
 
-// ==================== FUNÇÕES GLOBAIS DE COMPATIBILIDADE ====================
-
-// Compatibilidade com código existente
-window.Cart = {
-  adicionarItem: (produto) => cart?.addItem(produto),
-  removerItem: (id) => cart?.removeItem(id),
-  limparCarrinho: () => cart?.clearCart(),
-  getItens: () => cart?.getItems() || [],
-  getTotalItens: () => cart?.getTotalItems() || 0,
-  getTotalValor: () => cart?.getTotalValue() || 0,
-  abrirCarrinho: () => cart?.openCart(),
-  fecharCarrinho: () => cart?.closeCart(),
-  toggleCart: () => cart?.toggleCart()
-};
-
-// Funções globais para uso em HTML
-window.adicionarAoCarrinho = (produtoId) => {
-  if (typeof produtos !== 'undefined' && produtos.length > 0) {
-    const produto = produtos.find(p => p.ID == produtoId);
-    if (produto && cart) {
-      cart.addItem(produto);
-    }
-  }
-};
-
-window.abrirCarrinho = () => cart?.openCart();
-window.fecharCarrinho = () => cart?.closeCart();
-window.limparCarrinho = () => cart?.clearCart();
-window.finalizarCompra = () => cart?.showCheckoutForm();
-
-// ==================== ESTILOS CSS ====================
-
-// Adiciona estilos necessários
-const cartStyles = document.createElement('style');
-cartStyles.textContent = `
+// Adiciona estilos CSS para animações
+const style = document.createElement('style');
+style.textContent = `
   @keyframes slideInRight {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
   }
-
+  
   @keyframes slideOutRight {
-    from {
-      transform: translateX(0);
-      opacity: 1;
-    }
-    to {
-      transform: translateX(100%);
-      opacity: 0;
-    }
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
   }
-
-  .carrinho-item {
-    display: flex;
-    gap: 1rem;
-    padding: 1rem;
-    border-bottom: 1px solid #e5e7eb;
-    align-items: center;
+  
+  .checkout-step {
+    animation: fadeIn 0.3s ease;
   }
-
-  .carrinho-item:last-child {
-    border-bottom: none;
-  }
-
-  .carrinho-item-imagem {
-    width: 60px;
-    height: 60px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f3f4f6;
-    border-radius: 8px;
-    font-size: 1.5rem;
-  }
-
-  .carrinho-item-imagem img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 8px;
-  }
-
-  .carrinho-item-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .carrinho-item-titulo {
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0 0 0.25rem 0;
-    color: #1f2937;
-  }
-
-  .carrinho-item-descricao {
-    font-size: 0.875rem;
-    color: #6b7280;
-    margin: 0 0 0.5rem 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .carrinho-item-preco {
-    font-weight: 600;
-    color: #059669;
-    font-size: 1rem;
-  }
-
-  .carrinho-item-controles {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  .quantidade-controle {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: #f3f4f6;
-    border-radius: 6px;
-    padding: 0.25rem;
-  }
-
-  .quantidade-btn {
-    width: 28px;
-    height: 28px;
-    border: none;
-    background: #e5e7eb;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s ease;
-  }
-
-  .quantidade-btn:hover:not(:disabled) {
-    background: #d1d5db;
-  }
-
-  .quantidade-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .quantidade-valor {
-    min-width: 20px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 0.875rem;
-  }
-
-  .remover-item-btn {
-    background: #fee2e2;
-    border: none;
-    border-radius: 4px;
-    padding: 0.25rem 0.5rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.875rem;
-  }
-
-  .remover-item-btn:hover {
-    background: #fecaca;
-  }
-
-  .checkout-total {
-    text-align: center;
-    padding: 1rem;
-    background: #f9fafb;
-    border-radius: 8px;
-    margin-top: 1rem;
-    font-size: 1.125rem;
-  }
-
-  .form-group {
-    margin-bottom: 1rem;
-  }
-
-  .form-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #374151;
-  }
-
-  .form-input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 1rem;
-    transition: border-color 0.2s ease;
-  }
-
-  .form-input:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-
-  .cart-notification {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 `;
-
-document.head.appendChild(cartStyles);
-
-// ==================== EXPORT ====================
-
-// Para compatibilidade com módulos
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = ShoppingCart;
-}
+document.head.appendChild(style);
 
