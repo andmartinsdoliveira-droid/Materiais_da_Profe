@@ -1,6 +1,6 @@
 /**
  * SISTEMA DE CARRINHO - LOJA EDUCACIONAL
- * Versão: 4.1 - Integração com Make.com
+ * Versão: 4.2 - Integração com Make.com para Pagamento, Apps Script para Produtos
  * Data: Setembro 2025
  */
 
@@ -8,13 +8,14 @@
 const CartConfig = {
   STORAGE_KEY: 'materiaisdaprofe_carrinho',
   MAX_QUANTITY: 1, // Máximo 1 item por produto (evita duplicatas)
-  MAKE_WEBHOOK_URL: 'SUA_URL_DO_WEBHOOK_DO_MAKE_AQUI', // <<-- COLE A URL DO SEU WEBHOOK AQUI
+  APPS_SCRIPT_BACKEND_URL: 'https://script.google.com/macros/s/AKfycbxEFy0Fd1dIyTSjcibfucqDVYFDlxsdBmlsYAn046qDMIFKy7fdKBy9sLN9T1V0h66iQQ/exec', // <<-- SUA URL DO APPS SCRIPT AQUI PARA PRODUTOS
+  MAKE_WEBHOOK_URL: 'https://hook.us2.make.com/1dw287n9fsyhlkrhrw1n82ry0uhg8j9d', // <<-- COLOQUE A URL DO SEU WEBHOOK DO MAKE AQUI PARA PAGAMENTO
 };
 
 // ==================== CLASSE PRINCIPAL DO CARRINHO ====================
 
 class ShoppingCart {
-  constructor() {
+  constructor( ) {
     this.items = this.loadFromStorage();
     this.isModalOpen = false;
     this.currentCheckoutStep = 1;
@@ -269,7 +270,7 @@ class ShoppingCart {
     if (step === 1) {
       step1.style.display = 'block';
       step2.style.display = 'none';
-      footer.style.display = 'block';
+      footer.style.display = 'flex'; // Alterado para flex para alinhar botões
       this.currentCheckoutStep = 1;
     } else if (step === 2) {
       this.gerarResumoPedido();
@@ -331,7 +332,10 @@ class ShoppingCart {
         payer: {
           name: this.customerData.name,
           email: this.customerData.email,
-          phone: this.customerData.phone
+          phone: {
+            area_code: this.customerData.phone.replace(/\D/g, '').substring(0, 2), // Extrai DDD
+            number: this.customerData.phone.replace(/\D/g, '').substring(2) // Extrai número
+          }
         },
         metadata: {
           notes: this.customerData.notes
@@ -363,6 +367,7 @@ class ShoppingCart {
     } catch (error) {
       console.error("Erro ao processar checkout via Make.com:", error);
       this.showNotification(error.message || 'Ops! Não foi possível iniciar o pagamento.', 'error');
+    } finally {
       if (payBtn) {
         payBtn.disabled = false;
         payBtn.textContent = payBtn.dataset.originalText || 'Pagar com Mercado Pago';
@@ -394,11 +399,224 @@ document.addEventListener('DOMContentLoaded', () => {
   window.cart = cart;
 });
 
-function adicionarAoCarrinho(produtoId) {
-  if (typeof produtos !== 'undefined' && produtos.length > 0) {
-    const produto = produtos.find(p => p.ID == produtoId);
-    if (produto && cart) cart.addItem(produto);
+// A função adicionarAoCarrinho agora usa a URL do Apps Script para buscar o produto
+window.adicionarAoCarrinho = async (produtoId) => {
+  if (typeof produtos === 'undefined' || produtos.length === 0) {
+    // Se 'produtos' não estiver carregado, tenta buscar via Apps Script
+    try {
+      const response = await fetch(CartConfig.APPS_SCRIPT_BACKEND_URL);
+      if (!response.ok) throw new Error('Falha ao carregar produtos do Apps Script.');
+      window.produtos = await response.json(); // Popula a variável global 'produtos'
+    } catch (error) {
+      console.error('Erro ao carregar produtos para adicionar ao carrinho:', error);
+      cart?.showNotification('Erro ao carregar produtos. Tente novamente.', 'error');
+      return;
+    }
   }
+
+  const produto = window.produtos.find(p => p.ID == produtoId);
+  if (produto && cart) {
+    cart.addItem(produto);
+  }
+};
+
+window.abrirCarrinho = () => cart?.openCart();
+window.fecharCarrinho = () => cart?.closeCart();
+window.limparCarrinho = () => cart?.clearCart();
+window.finalizarCompra = () => cart?.showCheckoutForm();
+
+// ==================== ESTILOS CSS ====================
+
+// Adiciona estilos necessários
+const cartStyles = document.createElement('style');
+cartStyles.textContent = `
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutRight {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+
+  .carrinho-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    align-items: center;
+  }
+
+  .carrinho-item:last-child {
+    border-bottom: none;
+  }
+
+  .carrinho-item-imagem {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    border-radius: 8px;
+    font-size: 1.5rem;
+  }
+
+  .carrinho-item-imagem img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .carrinho-item-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .carrinho-item-titulo {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: #1f2937;
+  }
+
+  .carrinho-item-descricao {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0 0 0.5rem 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .carrinho-item-preco {
+    font-weight: 600;
+    color: #059669;
+    font-size: 1rem;
+  }
+
+  .carrinho-item-controles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .quantidade-controle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f3f4f6;
+    border-radius: 6px;
+    padding: 0.25rem;
+  }
+
+  .quantidade-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: #e5e7eb;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .quantidade-btn:hover:not(:disabled) {
+    background: #d1d5db;
+  }
+
+  .quantidade-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .quantidade-valor {
+    min-width: 20px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+
+  .remover-item-btn {
+    background: #fee2e2;
+    border: none;
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+  }
+
+  .remover-item-btn:hover {
+    background: #fecaca;
+  }
+
+  .checkout-total {
+    text-align: center;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    margin-top: 1rem;
+    font-size: 1.125rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .cart-notification {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+`;
+
+document.head.appendChild(cartStyles);
+
+// ==================== EXPORT ====================
+
+// Para compatibilidade com módulos
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = ShoppingCart;
 }
 
-// ... (outras funções globais e estilos) ...
