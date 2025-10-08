@@ -320,15 +320,16 @@ class ShoppingCart {
     }
 
     try {
-      const dadosParaMake = {
-        items: this.items.map(item => ({
-          id: item.id,
-          title: item.title,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          description: item.description,
-          picture_url: item.image
-        })),
+const dadosParaMake = {
+  items: this.items.map(item => ({
+    id: String(item.id),
+    title: item.title,
+    quantity: item.quantity,
+    unit_price: Number(item.unit_price),
+    description: item.description,
+    picture_url: item.image,
+    currency_id: "BRL"          // ← valor fixo enviado do front
+  })),
         payer: {
           name: this.customerData.name,
           email: this.customerData.email,
