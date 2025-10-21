@@ -1,15 +1,15 @@
 /**
  * SISTEMA DE CARRINHO - LOJA EDUCACIONAL
- * Versão: 4.2 - Integração com Make.com para Pagamento, Apps Script para Produtos
- * Data: Setembro 2025
+ * Versão: 4.3-PROD - Ajustes para produção (init_point) + preço robusto + CPF
+ * Data: Outubro 2025
  */
 
 // ==================== CONFIGURAÇÕES DO CARRINHO ====================
 const CartConfig = {
   STORAGE_KEY: 'materiaisdaprofe_carrinho',
   MAX_QUANTITY: 1, // Máximo 1 item por produto (evita duplicatas)
-  APPS_SCRIPT_BACKEND_URL: 'https://script.google.com/macros/s/AKfycbxEFy0Fd1dIyTSjcibfucqDVYFDlxsdBmlsYAn046qDMIFKy7fdKBy9sLN9T1V0h66iQQ/exec', // <<-- SUA URL DO APPS SCRIPT AQUI PARA PRODUTOS
-  MAKE_WEBHOOK_URL: 'https://hook.us2.make.com/1dw287n9fsyhlkrhrw1n82ry0uhg8j9d', // <<-- COLOQUE A URL DO SEU WEBHOOK DO MAKE AQUI PARA PAGAMENTO
+  APPS_SCRIPT_BACKEND_URL: 'https://script.google.com/macros/s/AKfycbxEFy0Fd1dIyTSjcibfucqDVYFDlxsdBmlsYAn046qDMIFKy7fdKBy9sLN9T1V0h66iQQ/exec', // URL DO APPS SCRIPT PARA PRODUTOS
+  MAKE_WEBHOOK_URL: 'https://hook.us2.make.com/1dw287n9fsyhlkrhrw1n82ry0uhg8j9d', // URL DO WEBHOOK DO MAKE PARA PAGAMENTO (deve usar token de PRODUÇÃO no cenário)
 };
 
 // ==================== CLASSE PRINCIPAL DO CARRINHO ====================
@@ -61,7 +61,8 @@ class ShoppingCart {
     const newItem = {
       id: produto.ID,
       title: produto.Nome,
-      unit_price: parseFloat(produto.Preço) || 0,
+      // ALTERAÇÃO: normalização robusta de preço (suporta "7,90" e "7.90")
+      unit_price: this.parsePriceToNumber(produto.Preço),
       quantity: 1,
       image: produto.URL_Imagem || produto.Imagens?.[0] || '',
       description: produto.Descrição || ''
@@ -244,8 +245,7 @@ class ShoppingCart {
       this.mostrarCheckoutStep(1);
       if (this.customerData) {
         document.getElementById('customerName').value = this.customerData.name || '';
-        document.getElementById('customerEmail').value = this.customerData.email || '';
-        document.getElementById('customerPhone').value = this.customerData.phone || '';
+        document.getElementById('customerEmail').value = this.customerData.email || '';     document.getElementById('customerPhone').value = this.customerData.phone || '';
         document.getElementById('orderNotes').value = this.customerData.notes || '';
       }
       modal.style.display = 'flex';
@@ -264,13 +264,12 @@ class ShoppingCart {
   mostrarCheckoutStep(step) {
     const step1 = document.getElementById('checkoutStep1');
     const step2 = document.getElementById('checkoutStep2');
-    const avancarBtn = document.getElementById('avancarEtapa1');
     const footer = document.querySelector('#checkoutModal .modal-footer');
     if (!step1 || !step2 || !footer) return;
     if (step === 1) {
       step1.style.display = 'block';
       step2.style.display = 'none';
-      footer.style.display = 'flex'; // Alterado para flex para alinhar botões
+      footer.style.display = 'flex';
       this.currentCheckoutStep = 1;
     } else if (step === 2) {
       this.gerarResumoPedido();
@@ -283,8 +282,7 @@ class ShoppingCart {
 
   continuarCheckout() {
     const name = document.getElementById('customerName')?.value?.trim();
-    const email = document.getElementById('customerEmail')?.value?.trim();
-    const phone = document.getElementById('customerPhone')?.value?.trim();
+    const email = document.getElementById('customerEmail')?.value?.trim();   const phone = document.getElementById('customerPhone')?.value?.trim();
     const notes = document.getElementById('orderNotes')?.value?.trim();
     if (!name || !email) {
       this.showNotification('Por favor, preencha seu nome e e-mail.', 'error');
@@ -320,24 +318,29 @@ class ShoppingCart {
     }
 
     try {
-const dadosParaMake = {
-  items: this.items.map(item => ({
-    id: String(item.id),
-    title: item.title,
-    quantity: item.quantity,
-    unit_price: Number(item.unit_price),
-    description: item.description,
-    picture_url: item.image,
-    currency_id: "BRL"          // ← valor fixo enviado do front
-  })),
-        payer: {
-          name: this.customerData.name,
-          email: this.customerData.email,
-          phone: {
-            area_code: this.customerData.phone.replace(/\D/g, '').substring(0, 2), // Extrai DDD
-            number: this.customerData.phone.replace(/\D/g, '').substring(2) // Extrai número
-          }
-        },
+      // 1. Cria a base do objeto payer
+      const payerData = {
+        name: this.customerData.name,
+        email: this.customerData.email,
+        phone: {
+          area_code: this.customerData.phone ? this.customerData.phone.replace(/\D/g, '').substring(0, 2) : "",
+          number: this.customerData.phone ? this.customerData.phone.replace(/\D/g, '').substring(2) : ""
+        }
+      };
+
+
+      // 2. Monta o objeto final para enviar ao Make
+      const dadosParaMake = {
+        items: this.items.map(item => ({
+          id: String(item.id),
+          title: item.title,
+          quantity: item.quantity,
+          unit_price: Number(item.unit_price), // garante número
+          description: item.description,
+          picture_url: item.image,
+          currency_id: "BRL" 
+        })),
+        payer: payerData,
         metadata: {
           notes: this.customerData.notes
         }
@@ -345,24 +348,29 @@ const dadosParaMake = {
 
       const response = await fetch(CartConfig.MAKE_WEBHOOK_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        // ALTERAÇÃO: declara Accept para garantir retorno JSON do Webhook Response
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(dadosParaMake),
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Falha na comunicação com o servidor de pagamento.' }));
-        throw new Error(errorData.message || 'Erro desconhecido no servidor.');
+        // tenta ler JSON de erro do Make/Mercado Pago
+        const errorData = await response.json().catch(() => null);
+        const msg = errorData?.message || errorData?.error || 'Falha na comunicação com o servidor de pagamento.';
+        throw new Error(msg);
       }
 
+      // ALTERAÇÃO: produção deve retornar { init_point: "https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=..." }
       const resultado = await response.json();
 
-      if (resultado.init_point) {
+      const paymentLink = resultado.init_point; // produção usa SEMPRE init_point
+      if (paymentLink) {
         this.items = [];
         this.saveToStorage();
         this.updateCounter();
-        window.location.href = resultado.init_point;
+        window.location.href = paymentLink;
       } else {
-        throw new Error('Link de pagamento não foi gerado pelo servidor.');
+        throw new Error('Link de pagamento não foi gerado pelo servidor (produção).');
       }
 
     } catch (error) {
@@ -382,12 +390,27 @@ const dadosParaMake = {
   formatPrice(price) { return `R$ ${(parseFloat(price) || 0).toFixed(2).replace('.', ',')}`; }
   escapeHtml(text) { const div = document.createElement('div'); div.textContent = text || ''; return div.innerHTML; }
 
+  // ALTERAÇÃO: helper para interpretar preços "7,90" / "7.90" / "7"
+  parsePriceToNumber(valor) {
+    if (typeof valor === 'number') return valor;
+    if (!valor) return 0;
+    const str = String(valor).trim().replace(/\s/g, '');
+    // troca vírgula por ponto, remove qualquer caractere extra
+    const normalized = str.replace(',', '.').replace(/[^0-9.]/g, '');
+    const n = parseFloat(normalized);
+    return Number.isFinite(n) ? n : 0;
+  }
+
   showNotification(message, type = 'info') {
     document.querySelectorAll('.cart-notification').forEach(n => n.remove());
     const notification = document.createElement('div');
     notification.className = `cart-notification cart-notification-${type}`;
     notification.textContent = message;
-    // ... (estilos e lógica de notificação) ...
+    // Lógica de notificação (estilos e timeout)
+    const existingNotification = document.querySelector('.cart-notification');
+    if (existingNotification) {
+      existingNotification.remove();
+    }
     document.body.appendChild(notification);
     setTimeout(() => notification.remove(), 5000);
   }
@@ -620,4 +643,3 @@ document.head.appendChild(cartStyles);
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ShoppingCart;
 }
-
