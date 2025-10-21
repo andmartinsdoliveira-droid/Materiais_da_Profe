@@ -8,7 +8,7 @@
 const CartConfig = {
   STORAGE_KEY: 'materiaisdaprofe_carrinho',
   MAX_QUANTITY: 1, // Máximo 1 item por produto (evita duplicatas)
-  APPS_SCRIPT_BACKEND_URL: 'https://script.google.com/macros/s/AKfycbxEFy0Fd1dIyTSjcibfucqDVYFDlxsdBmlsYAn046qDMIFKy7fdKBy9sLN9T1V0h66iQQ/exec', // URL DO APPS SCRIPT PARA PRODUTOS
+  APPS_SCRIPT_BACKEND_URL: 'https://script.google.com/macros/s/AKfycbxePs6JdZksbIGZ7SsbqxNOuZ0f9asF1-LdNJsDWDPZTc4zjpCN_Kb6aelvlUexiDk9dA/exec', // URL DO APPS SCRIPT PARA PRODUTOS
   MAKE_WEBHOOK_URL: 'https://hook.us2.make.com/1dw287n9fsyhlkrhrw1n82ry0uhg8j9d', // URL DO WEBHOOK DO MAKE PARA PAGAMENTO (deve usar token de PRODUÇÃO no cenário)
 };
 
