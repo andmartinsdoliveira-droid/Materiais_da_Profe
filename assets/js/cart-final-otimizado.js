@@ -350,11 +350,30 @@ const dadosParaMake = {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Falha na comunicação com o servidor de pagamento.' }));
+        // Se a resposta não for OK, tentamos ler como JSON para obter a mensagem de erro
+        const errorData = await response.json().catch(async () => {
+          // Se falhar, lemos a resposta como texto (pode ser "Accepted" ou outra coisa)
+          const text = await response.text();
+          return { message: \`Falha na comunicação com o servidor de pagamento. Resposta: \${text}\` };
+        });
         throw new Error(errorData.message || 'Erro desconhecido no servidor.');
       }
 
-      const resultado = await response.json();
+      // Se a resposta for OK (status 200/202), tentamos ler o JSON.
+      // Make.com pode responder com "Accepted" (texto puro) ou um JSON contendo o init_point.
+      let resultado = {};
+      try {
+        resultado = await response.json();
+      } catch (e) {
+        // Se falhar ao ler JSON, verificamos se a resposta é o texto "Accepted" do Make.com
+        const text = await response.text();
+        if (text.trim() === 'Accepted') {
+          // Se for "Accepted", significa que o Make.com aceitou a requisição
+          // mas não retornou o init_point. Isso indica um problema no cenário do Make.com.
+          throw new Error('O servidor de pagamento aceitou a requisição, mas não retornou o link de pagamento. Verifique o seu Make.com.');
+        }
+        throw new Error(\`Erro ao processar a resposta do servidor de pagamento. Resposta: \${text}\`);
+      }
 
       if (resultado.init_point) {
         this.items = [];
