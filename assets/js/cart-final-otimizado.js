@@ -9,7 +9,7 @@ const CartConfig = {
   STORAGE_KEY: 'materiaisdaprofe_carrinho',
   MAX_QUANTITY: 1, // Máximo 1 item por produto (evita duplicatas)
   APPS_SCRIPT_BACKEND_URL: 'https://script.google.com/macros/s/AKfycbxePs6JdZksbIGZ7SsbqxNOuZ0f9asF1-LdNJsDWDPZTc4zjpCN_Kb6aelvlUexiDk9dA/exec', // URL DO APPS SCRIPT PARA PRODUTOS
-  MAKE_WEBHOOK_URL: 'https://hook.us2.make.com/vacsfmao14l99567z40vrty9fg29b78m', // URL DO WEBHOOK DO MAKE PARA PAGAMENTO (deve usar token de PRODUÇÃO no cenário)
+  MAKE_WEBHOOK_URL: 'https://hook.us2.make.com/1dw287n9fsyhlkrhrw1n82ry0uhg8j9d', // URL DO WEBHOOK DO MAKE PARA PAGAMENTO (deve usar token de PRODUÇÃO no cenário)
 };
 
 // ==================== CLASSE PRINCIPAL DO CARRINHO ====================
@@ -61,7 +61,6 @@ class ShoppingCart {
     const newItem = {
       id: produto.ID,
       title: produto.Nome,
-      // ALTERAÇÃO: normalização robusta de preço (suporta "7,90" e "7.90")
       unit_price: this.parsePriceToNumber(produto.Preço),
       quantity: 1,
       image: produto.URL_Imagem || produto.Imagens?.[0] || '',
@@ -245,8 +244,8 @@ class ShoppingCart {
       this.mostrarCheckoutStep(1);
       if (this.customerData) {
         document.getElementById('customerName').value = this.customerData.name || '';
-        document.getElementById('customerEmail').value = this.customerData.email || '';     document.getElementById('customerPhone').value = this.customerData.phone || '';
-        document.getElementById('orderNotes').value = this.customerData.notes || '';
+        document.getElementById('customerEmail').value = this.customerData.email || '';
+        document.getElementById('customerPhone').value = this.customerData.phone || '';
       }
       modal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
@@ -261,29 +260,11 @@ class ShoppingCart {
     }
   }
 
-  mostrarCheckoutStep(step) {
-    const step1 = document.getElementById('checkoutStep1');
-    const step2 = document.getElementById('checkoutStep2');
-    const footer = document.querySelector('#checkoutModal .modal-footer');
-    if (!step1 || !step2 || !footer) return;
-    if (step === 1) {
-      step1.style.display = 'block';
-      step2.style.display = 'none';
-      footer.style.display = 'flex';
-      this.currentCheckoutStep = 1;
-    } else if (step === 2) {
-      this.gerarResumoPedido();
-      step1.style.display = 'none';
-      step2.style.display = 'block';
-      footer.style.display = 'none';
-      this.currentCheckoutStep = 2;
-    }
-  }
-
   continuarCheckout() {
     const name = document.getElementById('customerName')?.value?.trim();
-    const email = document.getElementById('customerEmail')?.value?.trim();   const phone = document.getElementById('customerPhone')?.value?.trim();
-    const notes = document.getElementById('orderNotes')?.value?.trim();
+    const email = document.getElementById('customerEmail')?.value?.trim();
+    const phone = document.getElementById('customerPhone')?.value?.trim();
+
     if (!name || !email) {
       this.showNotification('Por favor, preencha seu nome e e-mail.', 'error');
       return;
@@ -292,20 +273,50 @@ class ShoppingCart {
       this.showNotification('Por favor, insira um e-mail válido.', 'error');
       return;
     }
-    this.customerData = { name, email, phone, notes };
+
+    this.customerData = { name, email, phone };
     this.mostrarCheckoutStep(2);
+  }
+
+  mostrarCheckoutStep(step) {
+    const step1 = document.getElementById('checkoutStep1');
+    const step2 = document.getElementById('checkoutStep2');
+    const avancarBtn = document.getElementById('avancarEtapa1');
+
+    if (!step1 || !step2) return;
+
+    if (step === 1) {
+      step1.style.display = 'block';
+      step2.style.display = 'none';
+      if (avancarBtn) avancarBtn.style.display = 'inline-block';
+      this.currentCheckoutStep = 1;
+    } else if (step === 2) {
+      this.gerarResumoPedido();
+      step1.style.display = 'none';
+      step2.style.display = 'block';
+      if (avancarBtn) avancarBtn.style.display = 'none';
+      this.currentCheckoutStep = 2;
+    }
   }
 
   gerarResumoPedido() {
     const resumoItensContainer = document.getElementById('resumoPedidoItens');
     const resumoTotalElement = document.getElementById('resumoPedidoTotal');
     if (!resumoItensContainer || !resumoTotalElement) return;
+
+    if (this.items.length === 0) {
+      resumoItensContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
+      resumoTotalElement.textContent = '0,00';
+      return;
+    }
+
     resumoItensContainer.innerHTML = this.items.map(item => `
       <div class="resumo-item">
         <span>${this.escapeHtml(item.title)} x ${item.quantity}</span>
         <span>${this.formatPrice(item.unit_price * item.quantity)}</span>
       </div>
     `).join('');
+
     resumoTotalElement.textContent = this.formatPrice(this.getTotalValue()).replace('R$ ', '');
   }
 
@@ -318,64 +329,65 @@ class ShoppingCart {
     }
 
     try {
-      // 1. Cria a base do objeto payer
-      const payerData = {
-        name: this.customerData.name,
-        email: this.customerData.email,
-        phone: {
-          area_code: this.customerData.phone ? this.customerData.phone.replace(/\D/g, '').substring(0, 2) : "",
-          number: this.customerData.phone ? this.customerData.phone.replace(/\D/g, '').substring(2) : ""
-        }
-      };
-
-
-      // 2. Monta o objeto final para enviar ao Make
-      const dadosParaMake = {
+      const orderData = {
+        customer: this.customerData,
         items: this.items.map(item => ({
-          id: String(item.id),
+          id: item.id,
           title: item.title,
           quantity: item.quantity,
-          unit_price: Number(item.unit_price), // garante número
-          description: item.description,
-          picture_url: item.image,
-          currency_id: "BRL" 
+          unit_price: item.unit_price
         })),
-        payer: payerData,
-        metadata: {
-          notes: this.customerData.notes
-        }
+        total: this.getTotalValue()
       };
 
-      const response = await fetch(CartConfig.MAKE_WEBHOOK_URL, {
+      const appsScriptResponse = await fetch(CartConfig.APPS_SCRIPT_BACKEND_URL, {
         method: 'POST',
-        // ALTERAÇÃO: declara Accept para garantir retorno JSON do Webhook Response
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(dadosParaMake),
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify(orderData),
       });
 
-      if (!response.ok) {
-        // tenta ler JSON de erro do Make/Mercado Pago
-        const errorData = await response.json().catch(() => null);
-        const msg = errorData?.message || errorData?.error || 'Falha na comunicação com o servidor de pagamento.';
-        throw new Error(msg);
+      if (!appsScriptResponse.ok) {
+        throw new Error(`Erro no Apps Script: ${appsScriptResponse.status} ${appsScriptResponse.statusText}`);
       }
+      const appsScriptResult = await appsScriptResponse.json();
 
-      // ALTERAÇÃO: produção deve retornar { init_point: "https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=..." }
-      const resultado = await response.json();
+      if (appsScriptResult.status === 'SUCCESS' && appsScriptResult.checkoutUrl) {
+        const makeWebhookResponse = await fetch(CartConfig.MAKE_WEBHOOK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...orderData,
+            appsScriptOrderId: appsScriptResult.orderId,
+            checkoutUrl: appsScriptResult.checkoutUrl
+          }),
+        });
 
-      const paymentLink = resultado.init_point; // produção usa SEMPRE init_point
-      if (paymentLink) {
-        this.items = [];
-        this.saveToStorage();
-        this.updateCounter();
-        window.location.href = paymentLink;
+        if (!makeWebhookResponse.ok) {
+          throw new Error(`Erro no Make.com: ${makeWebhookResponse.status} ${makeWebhookResponse.statusText}`);
+        }
+        const makeWebhookResult = await makeWebhookResponse.json();
+
+        if (makeWebhookResult.status === 'SUCCESS' && makeWebhookResult.paymentUrl) {
+          this.showNotification('Redirecionando para o pagamento...', 'info');
+          window.location.href = makeWebhookResult.paymentUrl;
+          this.clearCart();
+        } else {
+          this.showNotification('Erro ao gerar link de pagamento.', 'error');
+          console.error('Erro Make.com:', makeWebhookResult);
+        }
       } else {
-        throw new Error('Link de pagamento não foi gerado pelo servidor (produção).');
+        this.showNotification('Erro ao processar pedido no Apps Script.', 'error');
+        console.error('Erro Apps Script:', appsScriptResult);
       }
 
     } catch (error) {
-      console.error("Erro ao processar checkout via Make.com:", error);
-      this.showNotification(error.message || 'Ops! Não foi possível iniciar o pagamento.', 'error');
+      console.error('Erro no checkout:', error);
+      this.showNotification('Erro ao processar pedido. Tente novamente.', 'error');
     } finally {
       if (payBtn) {
         payBtn.disabled = false;
@@ -384,63 +396,112 @@ class ShoppingCart {
     }
   }
 
+  parsePriceToNumber(valor) {
+    if (typeof valor === 'number') return valor;
+    if (typeof valor === 'string') {
+      const cleaned = valor.replace(/\./g, '').replace(/,/g, '.');
+      const parsed = parseFloat(cleaned);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
+  }
+
   saveToStorage() { try { localStorage.setItem(CartConfig.STORAGE_KEY, JSON.stringify(this.items)); } catch (e) { console.error('Erro ao salvar carrinho:', e); } }
   loadFromStorage() { try { const stored = localStorage.getItem(CartConfig.STORAGE_KEY); return stored ? JSON.parse(stored) : []; } catch (e) { console.error('Erro ao carregar carrinho:', e); return []; } }
   validateEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
   formatPrice(price) { return `R$ ${(parseFloat(price) || 0).toFixed(2).replace('.', ',')}`; }
   escapeHtml(text) { const div = document.createElement('div'); div.textContent = text || ''; return div.innerHTML; }
 
-  // ALTERAÇÃO: helper para interpretar preços "7,90" / "7.90" / "7"
-  parsePriceToNumber(valor) {
-    if (typeof valor === 'number') return valor;
-    if (!valor) return 0;
-    const str = String(valor).trim().replace(/\s/g, '');
-    // troca vírgula por ponto, remove qualquer caractere extra
-    const normalized = str.replace(',', '.').replace(/[^0-9.]/g, '');
-    const n = parseFloat(normalized);
-    return Number.isFinite(n) ? n : 0;
-  }
-
   showNotification(message, type = 'info') {
-    document.querySelectorAll('.cart-notification').forEach(n => n.remove());
+    const existing = document.querySelectorAll('.cart-notification');
+    existing.forEach(n => n.remove());
+
     const notification = document.createElement('div');
     notification.className = `cart-notification cart-notification-${type}`;
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      max-width: 400px;
+      padding: 1rem;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideInRight 0.3s ease;
+      cursor: pointer;
+    `;
+
+    const colors = {
+      success: '#10b981',
+      error: '#ef4444',
+      warning: '#f59e0b',
+      info: '#3b82f6'
+    };
+
+    notification.style.backgroundColor = colors[type] || colors.info;
     notification.textContent = message;
-    // Lógica de notificação (estilos e timeout)
-    const existingNotification = document.querySelector('.cart-notification');
-    if (existingNotification) {
-      existingNotification.remove();
-    }
+
+    const closeBtn = document.createElement('span');
+    closeBtn.innerHTML = '&times;';
+    closeBtn.style.cssText = `
+      float: right;
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-left: 10px;
+      cursor: pointer;
+    `;
+    closeBtn.onclick = () => notification.remove();
+    notification.appendChild(closeBtn);
+
     document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 5000);
+
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+      }
+    }, 5000);
+
+    notification.onclick = () => notification.remove();
   }
 }
 
-// ==================== INSTÂNCIA E FUNÇÕES GLOBAIS ====================
+// ==================== INSTÂNCIA GLOBAL ====================
+
 let cart;
-document.addEventListener('DOMContentLoaded', () => {
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    cart = new ShoppingCart();
+    window.cart = cart;
+  });
+} else {
   cart = new ShoppingCart();
   window.cart = cart;
-});
+}
 
-// A função adicionarAoCarrinho agora usa a URL do Apps Script para buscar o produto
-window.adicionarAoCarrinho = async (produtoId) => {
-  if (typeof produtos === 'undefined' || produtos.length === 0) {
-    // Se 'produtos' não estiver carregado, tenta buscar via Apps Script
-    try {
-      const response = await fetch(CartConfig.APPS_SCRIPT_BACKEND_URL);
-      if (!response.ok) throw new Error('Falha ao carregar produtos do Apps Script.');
-      window.produtos = await response.json(); // Popula a variável global 'produtos'
-    } catch (error) {
-      console.error('Erro ao carregar produtos para adicionar ao carrinho:', error);
-      cart?.showNotification('Erro ao carregar produtos. Tente novamente.', 'error');
-      return;
+// ==================== FUNÇÕES GLOBAIS DE COMPATIBILIDADE ====================
+
+window.Cart = {
+  adicionarItem: (produto) => cart?.addItem(produto),
+  removerItem: (id) => cart?.removeItem(id),
+  limparCarrinho: () => cart?.clearCart(),
+  getItens: () => cart?.getItems() || [],
+  getTotalItens: () => cart?.getTotalItems() || 0,
+  getTotalValor: () => cart?.getTotalValue() || 0,
+  abrirCarrinho: () => cart?.openCart(),
+  fecharCarrinho: () => cart?.closeCart(),
+  toggleCart: () => cart?.toggleCart()
+};
+
+window.adicionarAoCarrinho = (produtoId) => {
+  if (typeof produtos !== 'undefined' && produtos.length > 0) {
+    const produto = window.produtos.find(p => p.ID == produtoId);
+    if (produto && cart) {
+      cart.addItem(produto);
     }
-  }
-
-  const produto = window.produtos.find(p => p.ID == produtoId);
-  if (produto && cart) {
-    cart.addItem(produto);
   }
 };
 
@@ -451,7 +512,6 @@ window.finalizarCompra = () => cart?.showCheckoutForm();
 
 // ==================== ESTILOS CSS ====================
 
-// Adiciona estilos necessários
 const cartStyles = document.createElement('style');
 cartStyles.textContent = `
   @keyframes slideInRight {
@@ -639,7 +699,6 @@ document.head.appendChild(cartStyles);
 
 // ==================== EXPORT ====================
 
-// Para compatibilidade com módulos
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ShoppingCart;
 }
