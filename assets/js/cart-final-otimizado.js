@@ -1,15 +1,15 @@
 /**
  * SISTEMA DE CARRINHO - LOJA EDUCACIONAL
  * Versão: 4.3-PROD - Ajustes para produção (init_point) + preço robusto
- * Data: Setembro 2025
+ * Data: Outubro 2025
  */
 
 // ==================== CONFIGURAÇÕES DO CARRINHO ====================
 const CartConfig = {
   STORAGE_KEY: 'materiaisdaprofe_carrinho',
   MAX_QUANTITY: 1, // Máximo 1 item por produto (evita duplicatas)
-  APPS_SCRIPT_BACKEND_URL: 'https://script.google.com/macros/s/AKfycbxEFy0Fd1dIyTSjcibfucqDVYFDlxsdBmlsYAn046qDMIFKy7fdKBy9sLN9T1V0h66iQQ/exec', // URL DO APPS SCRIPT PARA PRODUTOS
-  MAKE_WEBHOOK_URL: 'https://hook.us2.make.com/1dw287n9fsyhlkrhrw1n82ry0uhg8j9d', // URL DO WEBHOOK DO MAKE PARA PAGAMENTO (deve usar token de PRODUÇÃO no cenário)
+  APPS_SCRIPT_BACKEND_URL: 'https://script.google.com/macros/s/AKfycbxePs6JdZksbIGZ7SsbqxNOuZ0f9asF1-LdNJsDWDPZTc4zjpCN_Kb6aelvlUexiDk9dA/exec', // URL DO APPS SCRIPT PARA PRODUTOS
+  MAKE_WEBHOOK_URL: 'https://hook.us2.make.com/mkxhdf8encaktfwvqoh3t5x4qmoxso7b', // URL DO WEBHOOK DO MAKE PARA PAGAMENTO (deve usar token de PRODUÇÃO no cenário)
 };
 
 // ==================== CLASSE PRINCIPAL DO CARRINHO ====================
@@ -65,7 +65,8 @@ class ShoppingCart {
       unit_price: this.parsePriceToNumber(produto.Preço),
       quantity: 1,
       image: produto.URL_Imagem || produto.Imagens?.[0] || '',
-      description: produto.Descrição || ''
+      description: produto.Descrição || '',
+      pdf_url: produto.LinkS3
     };
     this.items.push(newItem);
     this.saveToStorage();
@@ -204,7 +205,6 @@ class ShoppingCart {
             <form id="checkoutForm">
               <div class="form-group"><label class="form-label">Nome Completo *</label><input type="text" id="customerName" class="form-input" required></div>
               <div class="form-group"><label class="form-label">E-mail *</label><input type="email" id="customerEmail" class="form-input" required></div>
-              <div class="form-group"><label class="form-label">CPF (para pagamento com cartão)</label><input type="text" id="customerCpf" class="form-input" placeholder="000.000.000-00"></div>
               <div class="form-group"><label class="form-label">Telefone (WhatsApp)</label><input type="tel" id="customerPhone" class="form-input" placeholder="(11) 99999-9999"></div>
               <div class="form-group"><label class="form-label">Observações</label><textarea id="orderNotes" class="form-input" rows="3" placeholder="Informações adicionais..."></textarea></div>
               <div class="checkout-total"><strong>Total: R$ <span id="checkoutTotal">0,00</span></strong></div>
@@ -246,9 +246,7 @@ class ShoppingCart {
       this.mostrarCheckoutStep(1);
       if (this.customerData) {
         document.getElementById('customerName').value = this.customerData.name || '';
-        document.getElementById('customerEmail').value = this.customerData.email || '';
-        document.getElementById('customerCpf').value = this.customerData.cpf || '';
-        document.getElementById('customerPhone').value = this.customerData.phone || '';
+        document.getElementById('customerEmail').value = this.customerData.email || '';     document.getElementById('customerPhone').value = this.customerData.phone || '';
         document.getElementById('orderNotes').value = this.customerData.notes || '';
       }
       modal.style.display = 'flex';
@@ -285,9 +283,7 @@ class ShoppingCart {
 
   continuarCheckout() {
     const name = document.getElementById('customerName')?.value?.trim();
-    const email = document.getElementById('customerEmail')?.value?.trim();
-    const cpf = document.getElementById('customerCpf')?.value?.trim();
-    const phone = document.getElementById('customerPhone')?.value?.trim();
+    const email = document.getElementById('customerEmail')?.value?.trim();   const phone = document.getElementById('customerPhone')?.value?.trim();
     const notes = document.getElementById('orderNotes')?.value?.trim();
     if (!name || !email) {
       this.showNotification('Por favor, preencha seu nome e e-mail.', 'error');
@@ -297,7 +293,7 @@ class ShoppingCart {
       this.showNotification('Por favor, insira um e-mail válido.', 'error');
       return;
     }
-    this.customerData = { name, email, cpf, phone, notes };
+    this.customerData = { name, email, phone, notes };
     this.mostrarCheckoutStep(2);
   }
 
@@ -333,6 +329,7 @@ class ShoppingCart {
         }
       };
 
+
       // 2. Monta o objeto final para enviar ao Make
       const dadosParaMake = {
         items: this.items.map(item => ({
@@ -342,7 +339,8 @@ class ShoppingCart {
           unit_price: Number(item.unit_price), // garante número
           description: item.description,
           picture_url: item.image,
-          currency_id: "BRL" 
+          currency_id: "BRL",
+          pdf_url: item.pdf_url
         })),
         payer: payerData,
         metadata: {
@@ -406,13 +404,64 @@ class ShoppingCart {
   }
 
   showNotification(message, type = 'info') {
-    document.querySelectorAll('.cart-notification').forEach(n => n.remove());
-    const notification = document.createElement('div');
+    // Remove notificações existentes
+    const existing = document.querySelectorAll(".cart-notification");
+    existing.forEach(n => n.remove());
+
+    // Cria nova notificação
+    const notification = document.createElement("div");
     notification.className = `cart-notification cart-notification-${type}`;
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      max-width: 400px;
+      padding: 1rem;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideInRight 0.3s ease;
+      cursor: pointer;
+    `;
+
+    // Cores por tipo
+    const colors = {
+      success: '#10b981',
+      error: '#ef4444',
+      warning: '#f59e0b',
+      info: '#3b82f6'
+    };
+
+    notification.style.backgroundColor = colors[type] || colors.info;
     notification.textContent = message;
-    // ... (estilos e lógica de notificação) ...
+
+    // Adiciona botão de fechar
+    const closeBtn = document.createElement("span");
+    closeBtn.innerHTML = '&times;';
+    closeBtn.style.cssText = `
+      float: right;
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-left: 10px;
+      cursor: pointer;
+    `;
+    closeBtn.onclick = () => notification.remove();
+    notification.appendChild(closeBtn);
+
     document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 5000);
+
+    // Remove automaticamente
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+      }
+    }, 5000);
+
+    // Remove ao clicar
+    notification.onclick = () => notification.remove();
   }
 }
 
@@ -423,12 +472,14 @@ document.addEventListener('DOMContentLoaded', () => {
   window.cart = cart;
 });
 
+// A função adicionarAoCarrinho agora usa a URL do Apps Script para buscar o produto
 window.adicionarAoCarrinho = async (produtoId) => {
   if (typeof produtos === 'undefined' || produtos.length === 0) {
+    // Se 'produtos' não estiver carregado, tenta buscar via Apps Script
     try {
       const response = await fetch(CartConfig.APPS_SCRIPT_BACKEND_URL);
       if (!response.ok) throw new Error('Falha ao carregar produtos do Apps Script.');
-      window.produtos = await response.json();
+      window.produtos = await response.json(); // Popula a variável global 'produtos'
     } catch (error) {
       console.error('Erro ao carregar produtos para adicionar ao carrinho:', error);
       cart?.showNotification('Erro ao carregar produtos. Tente novamente.', 'error');
@@ -449,16 +500,217 @@ window.finalizarCompra = () => cart?.showCheckoutForm();
 
 // ==================== ESTILOS CSS ====================
 
+// Adiciona estilos necessários
 const cartStyles = document.createElement('style');
 cartStyles.textContent = `
-  /* ... (Todos os seus estilos CSS permanecem aqui, sem alterações) ... */
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutRight {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+
+  .carrinho-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    align-items: center;
+  }
+
+  .carrinho-item:last-child {
+    border-bottom: none;
+  }
+
+  .carrinho-item-imagem {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    border-radius: 8px;
+    font-size: 1.5rem;
+  }
+
+  .carrinho-item-imagem img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .carrinho-item-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .carrinho-item-titulo {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: #1f2937;
+  }
+
+  .carrinho-item-descricao {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0 0 0.5rem 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .carrinho-item-preco {
+    font-weight: 600;
+    color: #059669;
+    font-size: 1rem;
+  }
+
+  .carrinho-item-controles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .quantidade-controle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f3f4f6;
+    border-radius: 6px;
+    padding: 0.25rem;
+  }
+
+  .quantidade-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: #e5e7eb;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .quantidade-btn:hover:not(:disabled) {
+    background: #d1d5db;
+  }
+
+  .quantidade-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .quantidade-valor {
+    min-width: 20px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+
+  .remover-item-btn {
+    background: #fee2e2;
+    border: none;
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+  }
+
+  .remover-item-btn:hover {
+    background: #fecaca;
+  }
+
+  .checkout-total {
+    text-align: center;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    margin-top: 1rem;
+    font-size: 1.125rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .cart-notification {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutRight {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
 `;
+
 document.head.appendChild(cartStyles);
 
 // ==================== EXPORT ====================
 
+// Para compatibilidade com módulos
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ShoppingCart;
 }
-
-
